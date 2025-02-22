@@ -1,0 +1,32 @@
+[
+    {
+        "name": "John Doe",
+        "email": "johndoe@example.com",
+        "phone": "9876543210",
+        "departmentId": 1,
+        "designationId": 2,
+        "salary": 60000.50,
+        "joiningDate": "2024-02-20",
+        "status": "Active"
+    },
+    {
+        "name": "Jane Smith",
+        "email": "janesmith@example.com",
+        "phone": "9123456789",
+        "departmentId": 2,
+        "designationId": 3,
+        "salary": 75000.75,
+        "joiningDate": "2023-10-15",
+        "status": "Active"
+    },
+    {
+        "name": "Robert Brown",
+        "email": "robertbrown@example.com",
+        "phone": "9234567890",
+        "departmentId": 1,
+        "designationId": 1,
+        "salary": 50000.00,
+        "joiningDate": "2022-08-01",
+        "status": "Inactive"
+    }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "name": "HR",
+        "description": "Handles hiring and employee management"
+    },
+    {
+        "name": "IT",
+        "description": "Responsible for tech infrastructure"
+    },
+    {
+        "name": "Marketing",
+        "description": "Manages company branding and sales strategies"
+    }
+]
