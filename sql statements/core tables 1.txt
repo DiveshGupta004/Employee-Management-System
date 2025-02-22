@@ -1,0 +1,30 @@
+create database employee_db;
+use employee_db;
+
+
+
+CREATE TABLE Department (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE Designation (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    level INT CHECK (level >= 1)
+);
+
+CREATE TABLE Employee (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(15) UNIQUE NOT NULL,
+    departmentId INT,
+    designationId INT,
+    salary DECIMAL(10,2),
+    joiningDate DATE NOT NULL,
+    status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    FOREIGN KEY (departmentId) REFERENCES Department(id),
+    FOREIGN KEY (designationId) REFERENCES Designation(id)
+);
