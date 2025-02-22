@@ -26,13 +26,19 @@ exports.getDesignationById = async (req, res) => {
 // Create a new designation
 exports.createDesignation = async (req, res) => {
     try {
-        const { name, level } = req.body;
-        const newDesignation = await Designation.create({ name, level });
-        res.status(201).json(newDesignation);
+        const designations = req.body; // Expecting an array of designation objects
+
+        if (!Array.isArray(designations) || designations.length === 0) {
+            return res.status(400).json({ message: "Invalid input. Provide an array of designations." });
+        }
+
+        const newDesignations = await Designation.bulkCreate(designations);
+        res.status(201).json(newDesignations);
     } catch (error) {
-        res.status(500).json({ message: "Error creating designation", error });
+        res.status(500).json({ message: "Error creating designations", error });
     }
 };
+
 
 // Update a designation
 exports.updateDesignation = async (req, res) => {

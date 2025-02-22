@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Software Engineer",
+        "level": 2
+    },
+    {
+        "name": "Project Manager",
+        "level": 4
+    },
+    {
+        "name": "HR Executive",
+        "level": 1
+    }
+]

@@ -11,12 +11,24 @@ exports.getAllEmployees = async (req, res) => {
 
 exports.createEmployee = async (req, res) => {
     try {
-        const newEmployee = await Employee.create(req.body);
-        res.status(201).json(newEmployee);
+        const employees = req.body; // Expecting an array of employee objects
+
+        if (!Array.isArray(employees) || employees.length === 0) {
+            return res.status(400).json({ message: "Invalid input. Provide an array of employees." });
+        }
+
+        // Use bulkCreate to insert multiple records at once
+        const newEmployees = await Employee.bulkCreate(employees);
+
+        res.status(201).json({
+            message: "Employees added successfully.",
+            data: newEmployees
+        });
     } catch (error) {
-        res.status(500).json({ message: "Error creating employee", error });
+        res.status(500).json({ message: "Error creating employees", error });
     }
 };
+
 
 exports.getEmployeeById = async (req, res) => {
     try {

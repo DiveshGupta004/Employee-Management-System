@@ -13,13 +13,19 @@ exports.getAllDepartments = async (req, res) => {
 // ✅ Create a new department
 exports.createDepartment = async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const newDepartment = await Department.create({ name, description });
-        res.status(201).json(newDepartment);
+        const departments = req.body; // Expecting an array of department objects
+
+        if (!Array.isArray(departments) || departments.length === 0) {
+            return res.status(400).json({ message: "Invalid input. Provide an array of departments." });
+        }
+
+        const newDepartments = await Department.bulkCreate(departments);
+        res.status(201).json(newDepartments);
     } catch (error) {
-        res.status(500).json({ message: "Error creating department", error });
+        res.status(500).json({ message: "Error creating departments", error });
     }
 };
+
 
 // ✅ Get department by ID
 exports.getDepartmentById = async (req, res) => {
