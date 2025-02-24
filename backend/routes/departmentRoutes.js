@@ -1,11 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const departmentController = require('../controllers/departmentController');
+const departmentController = require("../controllers/departmentController");
+const { authenticateAdmin } = require("../middleware/adminMiddleware");
 
-router.get('/', departmentController.getAllDepartments);
-router.post('/', departmentController.createDepartment);
-router.get('/:id', departmentController.getDepartmentById);
-router.put('/:id', departmentController.updateDepartment);
-router.delete('/:id', departmentController.deleteDepartment);
+
+router.get("/", authenticateAdmin ,departmentController.getAllDepartments);
+router.post("/", authenticateAdmin ,departmentController.createDepartment);
+router.get("/:id", authenticateAdmin ,departmentController.getDepartmentById);
+router.put("/:id", authenticateAdmin ,departmentController.updateDepartment);
+router.delete("/:id", authenticateAdmin ,departmentController.deleteDepartment);
 
 module.exports = router;
