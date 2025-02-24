@@ -34,7 +34,7 @@ const Employee = sequelize.define('Employee', {
         allowNull: false
     },
     joiningDate: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false
     },
     status: {
