@@ -9,6 +9,7 @@ const authRoutes = require("./routes/adminRoutes");
 const departmentRoutes = require("./routes/departmentRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const designationRoutes = require("./routes/designationRoutes");
+const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
@@ -22,8 +23,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Sync Database
+
 sequelize
   .authenticate()
   .then(() => {
