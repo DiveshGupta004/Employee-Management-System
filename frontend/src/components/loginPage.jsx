@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaUser, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import loginimage from "../assets/admin_login_image.jpg";
 
 const Login = () => {
@@ -51,13 +51,16 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="********"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                {/* Lock Icon */}
+                <FaLock className="absolute left-3 top-3 text-gray-400" />
+                {/* Show/Hide Password Icon */}
                 <button
                   type="button"
-                  className="absolute right-3 top-3 text-gray-400 focus:outline-none"
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
