@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { FaUser, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
 import loginimage from "../assets/admin_login_image.jpg";
 
@@ -7,16 +8,36 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", { username, password });
-    // Add authentication logic here
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: "include", // ✅ Ensure cookies are sent
+      });
+  
+      const data = await response.json();
+      console.log("Response:", response);
+      console.log("Data:", data);
+  
+      if (response.ok) {
+        alert("Login successful!");
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.error || "Login failed!");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Something went wrong. Try again!");
+    }
   };
-
+    
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
-        {/* Left Side Image */}
         <div className="w-1/2 p-8 hidden md:flex items-center justify-center">
           <img
             src={loginimage}
@@ -25,13 +46,10 @@ const Login = () => {
             height="400"
           />
         </div>
-
-        {/* Right Side Form */}
         <div className="w-full md:w-1/2 p-8">
           <h2 className="text-2xl font-bold mb-6">Login</h2>
 
           <form onSubmit={handleSubmit}>
-            {/* Username Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -44,8 +62,6 @@ const Login = () => {
                 <FaUser className="absolute left-3 top-3 text-gray-400" />
               </div>
             </div>
-
-            {/* Password Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -55,9 +71,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                {/* Lock Icon */}
                 <FaLock className="absolute left-3 top-3 text-gray-400" />
-                {/* Show/Hide Password Icon */}
                 <button
                   type="button"
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
@@ -68,14 +82,13 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Forgot Password */}
             <div className="mb-4 text-right">
-              <a href="#" className="text-blue-500">
+              {/* ✅ Updated Forgot Password Link */}
+              <Link to="/forgot-password" className="text-blue-500 hover:underline">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
-            {/* Login Button */}
             <div className="mb-4">
               <button
                 type="submit"
