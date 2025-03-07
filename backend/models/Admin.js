@@ -7,6 +7,14 @@ const Admin = sequelize.define("Admin", {
         allowNull: false,
         unique: true
     },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true, // Ensures the input is a valid email
+        }
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false
