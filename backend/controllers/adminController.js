@@ -1,8 +1,8 @@
-const { Admin } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const { Admin } = require("../models");
 require("dotenv").config();
 
 if (!process.env.JWT_SECRET) {
@@ -10,28 +10,28 @@ if (!process.env.JWT_SECRET) {
     process.exit(1);
 }
 
-// Store reset tokens temporarily (use a database in production)
+// Store reset tokens temporarily (consider using a database in production)
 const resetTokens = new Map();
 
 // ✅ Register Admin
 exports.register = async (req, res) => {
     try {
-        const { username, password, email } = req.body;
+        const { username, email, password } = req.body;
 
-        if (!username || !password || !email) {
+        if (!username || !email || !password) {
             return res.status(400).json({ error: "Username, email, and password are required" });
         }
 
-        // ✅ Check if Admin already exists
+        // Check if Admin exists
         const existingAdmin = await Admin.findOne({ where: { username } });
         if (existingAdmin) {
-            return res.status(400).json({ error: "Username is already taken" });
+            return res.status(400).json({ error: "Username already taken" });
         }
 
-        // ✅ Hash the password
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // ✅ Create Admin
+        // Create Admin
         const newAdmin = await Admin.create({ username, email, password: hashedPassword });
 
         res.status(201).json({
@@ -54,25 +54,25 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        // ✅ Fetch admin from database
+        // Fetch admin from DB
         const admin = await Admin.findOne({ where: { username } });
         if (!admin) return res.status(400).json({ error: "Admin not found" });
 
-        // ✅ Check password
+        // Verify password
         const isValid = await bcrypt.compare(password, admin.password);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-        // ✅ Generate JWT token
+        // Generate JWT
         const token = jwt.sign(
             { id: admin.id, username: admin.username, isAdmin: true },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        // ✅ Store token in HTTP-only cookie
+        // Set token in HTTP-only cookie
         res.cookie("auth_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", // Ensure secure in production
+            secure: process.env.NODE_ENV === "production",
             sameSite: "Strict",
             maxAge: 3600000 // 1 hour
         });
@@ -85,20 +85,24 @@ exports.login = async (req, res) => {
     }
 };
 
-// ✅ Forgot Password
+// ✅ Forgot Password (by Email)
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const admin = await Admin.findOne({ where: { email } });
 
+        // 🔍 Check if Admin exists
+        const admin = await Admin.findOne({ where: { email } });
         if (!admin) return res.status(404).json({ error: "Admin not found" });
 
+        // 🔑 Generate Reset Token
         const token = crypto.randomBytes(32).toString("hex");
-        resetTokens.set(token, admin.id);
+        resetTokens.set(token, admin.id); // Store token temporarily
 
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+        // 📩 Reset Password Link
+        const resetLink = `${process.env.FRONTEND_URL.replace(/\/$/, '')}/reset-password/${token}`;
 
-        // ✅ Configure email transport
+
+        // ✉️ Configure Nodemailer
         const transporter = nodemailer.createTransport({
             service: "Gmail",
             auth: {
@@ -107,11 +111,17 @@ exports.forgotPassword = async (req, res) => {
             },
         });
 
+        // ✅ Send Email with Clickable Link
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: admin.email,
             subject: "Password Reset Request",
-            text: `Click the link to reset your password: ${resetLink}`,
+            html: `
+                <p>Hello <strong>${admin.username}</strong>,</p>
+                <p>You requested to reset your password. Click the link below:</p>
+                <p><a href="${resetLink}" style="color: blue; text-decoration: underline;">Reset Password</a></p>
+                <p>If you didn’t request this, please ignore this email.</p>
+            `
         });
 
         res.json({ message: "Password reset link sent to your email." });
@@ -122,7 +132,7 @@ exports.forgotPassword = async (req, res) => {
     }
 };
 
-// ✅ Reset Password
+// ✅ Reset Password - Update New Password
 exports.resetPassword = async (req, res) => {
     try {
         const { token, newPassword } = req.body;
@@ -132,8 +142,10 @@ exports.resetPassword = async (req, res) => {
         const adminId = resetTokens.get(token);
         resetTokens.delete(token);
 
+        // 🔒 Hash new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+        // ✅ Update Admin Password
         await Admin.update({ password: hashedPassword }, { where: { id: adminId } });
 
         res.json({ message: "Password reset successful." });

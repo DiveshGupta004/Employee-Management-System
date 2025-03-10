@@ -38,18 +38,22 @@ const Login = () => {
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
+        {/* ✅ Left Side - Image */}
         <div className="w-1/2 p-8 hidden md:flex items-center justify-center">
           <img
             src={loginimage}
-            alt="Illustration of a person sitting at a desk with a laptop, books, and a lamp"
+            alt="Admin login illustration"
             width="400"
             height="400"
           />
         </div>
+
+        {/* ✅ Right Side - Login Form */}
         <div className="w-full md:w-1/2 p-8">
           <h2 className="text-2xl font-bold mb-6">Login</h2>
 
           <form onSubmit={handleSubmit}>
+            {/* ✅ Username Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -62,6 +66,8 @@ const Login = () => {
                 <FaUser className="absolute left-3 top-3 text-gray-400" />
               </div>
             </div>
+
+            {/* ✅ Password Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -82,13 +88,14 @@ const Login = () => {
               </div>
             </div>
 
+            {/* ✅ Forgot Password Link */}
             <div className="mb-4 text-right">
-              {/* ✅ Updated Forgot Password Link */}
               <Link to="/forgot-password" className="text-blue-500 hover:underline">
                 Forgot Password?
               </Link>
             </div>
 
+            {/* ✅ Login Button */}
             <div className="mb-4">
               <button
                 type="submit"
