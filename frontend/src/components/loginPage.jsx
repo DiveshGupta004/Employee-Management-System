@@ -1,47 +1,60 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaUser, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
-import loginimage from "../assets/admin_login_image.jpg";
+import loginImage from "../assets/admin_login_image.jpg";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include", // ✅ Ensure cookies are sent
+        credentials: "include", // ✅ Sends cookies with request
       });
-  
+
       const data = await response.json();
-      console.log("Response:", response);
-      console.log("Data:", data);
-  
+
       if (response.ok) {
-        alert("Login successful!");
-        window.location.href = "/dashboard";
+        localStorage.setItem("token", data.token); // ✅ Save token
+        navigate("/dashboard"); // ✅ Redirect to dashboard
       } else {
-        alert(data.error || "Login failed!");
+        alert(data.error || "Invalid credentials!");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login error:", error);
       alert("Something went wrong. Try again!");
     }
   };
-    
+  const handleLogout = async () => {
+    try {
+        await fetch("http://localhost:5000/api/admin/logout", {
+            method: "POST",
+            credentials: "include", // ✅ Ensures cookies are included
+        });
+
+        localStorage.removeItem("token"); // ✅ Also remove token from local storage
+        window.location.href = "/"; // Redirect to login page
+    } catch (error) {
+        console.error("Logout failed:", error);
+    }
+};
+
+
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
         {/* ✅ Left Side - Image */}
         <div className="w-1/2 p-8 hidden md:flex items-center justify-center">
           <img
-            src={loginimage}
+            src={loginImage}
             alt="Admin login illustration"
             width="400"
             height="400"
@@ -50,9 +63,9 @@ const Login = () => {
 
         {/* ✅ Right Side - Login Form */}
         <div className="w-full md:w-1/2 p-8">
-          <h2 className="text-2xl font-bold mb-6">Login</h2>
+          <h2 className="text-2xl font-bold mb-6">Admin Login</h2>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleLogin}>
             {/* ✅ Username Input */}
             <div className="mb-4">
               <div className="relative">
@@ -62,6 +75,7 @@ const Login = () => {
                   placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  required
                 />
                 <FaUser className="absolute left-3 top-3 text-gray-400" />
               </div>
@@ -76,6 +90,7 @@ const Login = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <FaLock className="absolute left-3 top-3 text-gray-400" />
                 <button

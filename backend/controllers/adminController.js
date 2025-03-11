@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const { Admin } = require("../models");
+const { Admin, User } = require("../models"); // Import both Admin and User
 require("dotenv").config();
 
 if (!process.env.JWT_SECRET) {
@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
     }
 };
 
-// ✅ Login Admin
+// ✅ Login (Admin & User)
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -54,17 +54,18 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        // Fetch admin from DB
-        const admin = await Admin.findOne({ where: { username } });
-        if (!admin) return res.status(400).json({ error: "Admin not found" });
+        // Fetch user from database (Admin or Employee)
+        const user = await Admin.findOne({ where: { username } }) || await User.findOne({ where: { username } });
+
+        if (!user) return res.status(400).json({ error: "User not found" });
 
         // Verify password
-        const isValid = await bcrypt.compare(password, admin.password);
+        const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-        // Generate JWT
+        // Generate JWT Token
         const token = jwt.sign(
-            { id: admin.id, username: admin.username, isAdmin: true },
+            { id: user.id, username: user.username, isAdmin: !!user.isAdmin },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
@@ -100,7 +101,6 @@ exports.forgotPassword = async (req, res) => {
 
         // 📩 Reset Password Link
         const resetLink = `${process.env.FRONTEND_URL.replace(/\/$/, '')}/reset-password/${token}`;
-
 
         // ✉️ Configure Nodemailer
         const transporter = nodemailer.createTransport({
