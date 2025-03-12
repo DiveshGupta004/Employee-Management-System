@@ -1,25 +1,27 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import Login from "./components/loginPage";
 import ForgotPassword from "./components/forgotPassword";
 import ResetPassword from "./components/resetPassword";
 import Sidebar from "./components/dashboard/sidebar";
 import TopBar from "./components/dashboard/topbar";
-import DashboardWidgets from "./components/dashboard/dashboardWidgets";
-import EmployeeTable from "./components/dashboard/employeeTable";
-import TaskChart from "./components/dashboard/charts";
-import ProtectedRoute from "./routes/protectedRoute"; // ✅ Ensure correct path
+import ProtectedRoute from "./routes/protectedRoute";
 import "./App.css";
 
 function DashboardLayout() {
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <TopBar />
-        <div className="p-6 space-y-6">
-          <DashboardWidgets />
-          <TaskChart />
-          <EmployeeTable />
+      <Sidebar isOpen={isSidebarOpen} />
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-0"}`}>
+        <TopBar toggleSidebar={toggleSidebar} />
+        <div className="p-6">
+          {/* Main dashboard content goes here */}
         </div>
       </div>
     </div>
