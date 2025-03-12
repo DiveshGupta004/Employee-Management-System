@@ -7,46 +7,55 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include", // ✅ Sends cookies with request
+        credentials: "include",
       });
 
       const data = await response.json();
+      setLoading(false);
 
       if (response.ok) {
-        localStorage.setItem("token", data.token); // ✅ Save token
-        navigate("/dashboard"); // ✅ Redirect to dashboard
+        localStorage.setItem("token", data.token);
+        navigate("/dashboard"); // ✅ Redirect after login
       } else {
-        alert(data.error || "Invalid credentials!");
+        setError(data.error || "Invalid credentials!");
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Something went wrong. Try again!");
+      setError("Something went wrong. Try again!");
+      setLoading(false);
     }
   };
+
   const handleLogout = async () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (!confirmLogout) return;
+
     try {
-        await fetch("http://localhost:5000/api/admin/logout", {
-            method: "POST",
-            credentials: "include", // ✅ Ensures cookies are included
-        });
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
 
-        localStorage.removeItem("token"); // ✅ Also remove token from local storage
-        window.location.href = "/"; // Redirect to login page
+      localStorage.removeItem("token");
+      navigate("/"); // ✅ Redirect to login page after logout
     } catch (error) {
-        console.error("Logout failed:", error);
+      console.error("Logout failed:", error);
     }
-};
-
+  };
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
@@ -64,6 +73,9 @@ const Login = () => {
         {/* ✅ Right Side - Login Form */}
         <div className="w-full md:w-1/2 p-8">
           <h2 className="text-2xl font-bold mb-6">Admin Login</h2>
+
+          {/* ✅ Show error message */}
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
           <form onSubmit={handleLogin}>
             {/* ✅ Username Input */}
@@ -114,9 +126,12 @@ const Login = () => {
             <div className="mb-4">
               <button
                 type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                className={`w-full py-2 rounded-lg ${
+                  loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 text-white"
+                }`}
+                disabled={loading}
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </div>
           </form>

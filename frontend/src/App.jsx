@@ -7,7 +7,7 @@ import TopBar from "./components/dashboard/topbar";
 import DashboardWidgets from "./components/dashboard/dashboardWidgets";
 import EmployeeTable from "./components/dashboard/employeeTable";
 import TaskChart from "./components/dashboard/charts";
-import ProtectedRoute from "../src/routes/protectedRoute";
+import ProtectedRoute from "./routes/protectedRoute"; // ✅ Ensure correct path
 import "./App.css";
 
 function DashboardLayout() {
@@ -30,12 +30,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* ✅ Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* ✅ Protected Admin Dashboard */}
+        {/* ✅ Protected Admin Dashboard (Requires Authentication) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardLayout />} />
         </Route>
