@@ -32,33 +32,21 @@ exports.createDesignation = async (req, res) => {
                 return res.status(400).json({ message: "Invalid input. Provide an array of designations." });
             }
 
-            // Convert level to integer
             const processedDesignations = req.body.map(d => ({
-                name: d.name,
-                level: parseInt(d.level, 10) || null // Ensure it's an integer
+                name: d.name
             }));
-
-            // Validate that all levels are valid integers
-            if (processedDesignations.some(d => d.level === null)) {
-                return res.status(400).json({ message: "Invalid level. It must be an integer." });
-            }
 
             const newDesignations = await Designation.bulkCreate(processedDesignations, { validate: true });
             return res.status(201).json({ message: "Designations created successfully", data: newDesignations });
         }
 
         // Handle single designation
-        const { name, level } = req.body;
-        if (!name || level === undefined) {
-            return res.status(400).json({ message: "Name and level are required for a designation." });
+        const { name } = req.body;
+        if (!name) {
+            return res.status(400).json({ message: "Name is required for a designation." });
         }
 
-        const parsedLevel = parseInt(level, 10);
-        if (isNaN(parsedLevel)) {
-            return res.status(400).json({ message: "Invalid level. It must be an integer." });
-        }
-
-        const newDesignation = await Designation.create({ name, level: parsedLevel });
+        const newDesignation = await Designation.create({ name });
         res.status(201).json({ message: "Designation created successfully", data: newDesignation });
 
     } catch (error) {
@@ -66,24 +54,18 @@ exports.createDesignation = async (req, res) => {
     }
 };
 
+
 // Update a designation
 exports.updateDesignation = async (req, res) => {
     try {
-        const { name, level } = req.body;
+        const { name } = req.body;
         const designation = await Designation.findByPk(req.params.id);
+        
         if (!designation) {
             return res.status(404).json({ message: "Designation not found" });
         }
 
-        if (level !== undefined) {
-            const parsedLevel = parseInt(level, 10);
-            if (isNaN(parsedLevel)) {
-                return res.status(400).json({ message: "Invalid level. It must be an integer." });
-            }
-            req.body.level = parsedLevel;
-        }
-
-        await designation.update(req.body);
+        await designation.update({ name });
         res.json({ message: "Designation updated successfully", data: designation });
     } catch (error) {
         res.status(500).json({ message: "Error updating designation", error: error.message });

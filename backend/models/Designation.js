@@ -11,13 +11,6 @@ const Designation = sequelize.define('Designation', {
         type: DataTypes.STRING(100),
         allowNull: false,
         unique: true
-    },
-    level: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-            min: 1  // Ensuring level is at least 1
-        }
     }
 }, {
     tableName: 'Designation',  // Explicit table name

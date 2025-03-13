@@ -11,7 +11,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <a href="#" className="text-white text-2xl font-semibold block mt-3">Dashboard</a>
+                <a href="/dashboard" className="text-white text-2xl font-semibold block mt-3">Dashboard</a>
                 <ul className="mt-6">
                     <li className="my-px">
                         <Link to="/attendance" className="flex items-center p-4 rounded-lg hover:bg-gray-700 transition-colors">
@@ -21,6 +21,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                     <li className="my-px">
                         <Link to="/employee-table" className="flex items-center p-4 rounded-lg hover:bg-gray-700 transition-colors">
                             <span className="flex-1 ml-3 whitespace-nowrap">Employee Table</span>
+                        </Link>
+                    </li>
+                    <li className="my-px">
+                        <Link to="/addfields" className="flex items-center p-4 rounded-lg hover:bg-gray-700 transition-colors">
+                            <span className="flex-1 ml-3 whitespace-nowrap">Add Fields</span>
                         </Link>
                     </li>
                 </ul>

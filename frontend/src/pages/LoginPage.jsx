@@ -21,15 +21,14 @@ const Login = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
-        credentials: "include",
+        credentials: "include", // Ensure cookies are sent with the request
       });
 
       const data = await response.json();
       setLoading(false);
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard"); // ✅ Redirect after login
+        navigate("/dashboard"); // Redirect after login
       } else {
         setError(data.error || "Invalid credentials!");
       }
@@ -47,11 +46,10 @@ const Login = () => {
     try {
       await fetch("http://localhost:5000/api/auth/logout", {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // Ensure cookies are sent with the request
       });
 
-      localStorage.removeItem("token");
-      navigate("/"); // ✅ Redirect to login page after logout
+      navigate("/"); // Redirect to login page after logout
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -60,7 +58,7 @@ const Login = () => {
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg flex max-w-4xl w-full">
-        {/* ✅ Left Side - Image */}
+        {/* Left Side - Image */}
         <div className="w-1/2 p-8 hidden md:flex items-center justify-center">
           <img
             src={loginImage}
@@ -70,15 +68,15 @@ const Login = () => {
           />
         </div>
 
-        {/* ✅ Right Side - Login Form */}
+        {/* Right Side - Login Form */}
         <div className="w-full md:w-1/2 p-8">
           <h2 className="text-2xl font-bold mb-6">Admin Login</h2>
 
-          {/* ✅ Show error message */}
+          {/* Show error message */}
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
           <form onSubmit={handleLogin}>
-            {/* ✅ Username Input */}
+            {/* Username Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -93,7 +91,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* ✅ Password Input */}
+            {/* Password Input */}
             <div className="mb-4">
               <div className="relative">
                 <input
@@ -115,14 +113,14 @@ const Login = () => {
               </div>
             </div>
 
-            {/* ✅ Forgot Password Link */}
+            {/* Forgot Password Link */}
             <div className="mb-4 text-right">
               <Link to="/forgot-password" className="text-blue-500 hover:underline">
                 Forgot Password?
               </Link>
             </div>
 
-            {/* ✅ Login Button */}
+            {/* Login Button */}
             <div className="mb-4">
               <button
                 type="submit"

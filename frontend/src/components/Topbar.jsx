@@ -9,10 +9,25 @@ const TopBar = ({ toggleSidebar }) => {
     day: "numeric",
   });
 
-  const handleLogout = () => {
-    Cookies.remove('jwt'); // Assuming your JWT token is stored as 'jwt'
-    window.location.href = '/'; // Redirect to login page or home page
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'  // This is crucial to include cookies with the request
+      });
+  
+      if (response.ok) {
+        // Redirect to login page or home page
+        window.location.href = '/';
+      } else {
+        throw new Error('Failed to log out.');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('Logout failed. Please try again.');
+    }
   };
+  
 
   return (
     <nav className="bg-gray-800 text-white shadow-lg p-4 flex justify-between items-center fixed w-full z-30">

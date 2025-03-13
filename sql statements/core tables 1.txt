@@ -5,14 +5,12 @@ use employee_db;
 
 CREATE TABLE Department (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    description TEXT
+    name VARCHAR(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE Designation (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) UNIQUE NOT NULL,
-    level INT CHECK (level >= 1)
+    name VARCHAR(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE Employee (
@@ -25,6 +23,6 @@ CREATE TABLE Employee (
     salary DECIMAL(10,2),
     joiningDate DATE NOT NULL,
     status ENUM('Active', 'Inactive') DEFAULT 'Active',
-    FOREIGN KEY (departmentId) REFERENCES Department(id),
-    FOREIGN KEY (designationId) REFERENCES Designation(id)
+    FOREIGN KEY (departmentId) REFERENCES Department(id) ON DELETE CASCADE,
+    FOREIGN KEY (designationId) REFERENCES Designation(id) ON DELETE CASCADE
 );

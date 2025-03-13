@@ -46,6 +46,22 @@ sequelize
     console.error("❌ Database connection failed:", err);
   });
 
+
+app.get('/api/auth/validate', (req, res) => {
+  if (req.cookies.auth_token) {
+    // Verify the token and return success if valid
+    return res.status(200).json({ isAuthenticated: true });
+  } else {
+    return res.status(401).json({ isAuthenticated: false });
+  }
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
+
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

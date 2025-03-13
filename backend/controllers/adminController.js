@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const { Admin, User } = require("../models"); // Import both Admin and User
+const { Admin} = require("../models"); // Import both Admin and User
 require("dotenv").config();
 
 if (!process.env.JWT_SECRET) {
@@ -45,7 +45,8 @@ exports.register = async (req, res) => {
     }
 };
 
-// ✅ Login (Admin & User)
+
+
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -54,18 +55,22 @@ exports.login = async (req, res) => {
             return res.status(400).json({ error: "Username and password are required" });
         }
 
-        // Fetch user from database (Admin or Employee)
-        const user = await Admin.findOne({ where: { username } }) || await User.findOne({ where: { username } });
+        // Fetch user from Admins table
+        const admin = await Admin.findOne({ where: { username } });
 
-        if (!user) return res.status(400).json({ error: "User not found" });
+        if (!admin) {
+            return res.status(400).json({ error: "Admin not found" });
+        }
 
         // Verify password
-        const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
+        const isValid = await bcrypt.compare(password, admin.password);
+        if (!isValid) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
 
-        // Generate JWT Token
+        // Generate JWT Token with isAdmin set to true
         const token = jwt.sign(
-            { id: user.id, username: user.username, isAdmin: !!user.isAdmin },
+            { id: admin.id, username: admin.username, isAdmin: true }, // Always set isAdmin to true
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
@@ -78,7 +83,7 @@ exports.login = async (req, res) => {
             maxAge: 3600000 // 1 hour
         });
 
-        res.json({ message: "Login successful" });
+        res.json({ message: "Login successful", isAdmin: true });
 
     } catch (error) {
         console.error("❌ Login Error:", error);

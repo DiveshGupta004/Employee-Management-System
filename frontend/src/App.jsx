@@ -8,7 +8,7 @@ import ProtectedRoute from "./routes/protectedRoute";
 import Dashboard from "./pages/Dashboard";
 import NavBar from "./components/CompleteNavbar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
-
+import Addfields from './pages/Addfields';
 // Layout component that includes NavBar and an Outlet for nested routes
 const DashboardLayout = () => {
   return (
@@ -31,6 +31,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmpoloyeeTable />} />
+            <Route path="/addfields" element={<Addfields />} />
           </Route>
         </Route>
       </Routes>
