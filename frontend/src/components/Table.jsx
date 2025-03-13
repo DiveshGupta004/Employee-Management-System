@@ -1,6 +1,6 @@
 import React from 'react'
 
-function EmployeeTable() {
+function Table() {
   return (
     <>
     
@@ -270,4 +270,4 @@ function EmployeeTable() {
   )
 }
 
-export default EmployeeTable
+export default Table
