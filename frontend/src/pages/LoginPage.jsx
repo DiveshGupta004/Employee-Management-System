@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -23,22 +23,27 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
         credentials: "include",
       });
-
+  
       const data = await response.json();
-      setLoading(false);
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        navigate("/dashboard"); // ✅ Redirect after login
-      } else {
-        setError(data.error || "Invalid credentials!");
-      }
+  
+      // Simulate a delay of 2 seconds before processing login
+      setTimeout(() => {
+        setLoading(false);
+  
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          navigate("/dashboard"); // ✅ Redirect after login
+        } else {
+          setError(data.error || "Invalid credentials!");
+        }
+      }, 1000); // ⏳ Delay of 2 seconds
     } catch (error) {
       console.error("Login error:", error);
       setError("Something went wrong. Try again!");
       setLoading(false);
     }
   };
+  
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
