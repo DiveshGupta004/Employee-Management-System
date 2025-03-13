@@ -1,45 +1,38 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import "./App.css";
 import Login from "./components/loginPage";
 import ForgotPassword from "./components/forgotPassword";
 import ResetPassword from "./components/resetPassword";
-import Sidebar from "./components/dashboard/sidebar";
-import TopBar from "./components/dashboard/topbar";
 import ProtectedRoute from "./routes/protectedRoute";
-import "./App.css";
+import EmployeeTableLayout from "./components/EmployeeTable";
+import Dashboard from "./pages/Dashboard";
+import NavBar from "./components/CompleteNavbar";
 
-function DashboardLayout() {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!isSidebarOpen);
-  };
-
+// Layout component that includes NavBar and an Outlet for nested routes
+const DashboardLayout = () => {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar isOpen={isSidebarOpen} />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-0"}`}>
-        <TopBar toggleSidebar={toggleSidebar} />
-        <div className="p-6">
-          {/* Main dashboard content goes here */}
-        </div>
-      </div>
+    <div>
+      <NavBar />
+      <Outlet />  
     </div>
   );
-}
+};
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* ✅ Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-        {/* ✅ Protected Admin Dashboard (Requires Authentication) */}
+        
+        {/* Wrap the DashboardLayout inside ProtectedRoute if it has specific authentication logic */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />} />
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/employee-table" element={<EmployeeTableLayout />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
