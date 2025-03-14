@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar'; // Update the path as necessary
-import TopBar from './TopBar'; // Update the path as necessary
+import TopBar from './Topbar'; // Update the path as necessary
 
 function CompleteNavbar() {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
