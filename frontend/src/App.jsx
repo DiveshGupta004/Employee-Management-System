@@ -7,8 +7,6 @@ import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./routes/protectedRoute";
 import Dashboard from "./pages/Dashboard";
 import EmployeeTable from "./pages/EmployeeTable";
-import TopBar from "./components/TopBar";
-import Sidebar from "./components/Sidebar";
 
 // Layout component that includes TopBar, Sidebar, and nested routes
 import NavBar from "./components/CompleteNavbar";
