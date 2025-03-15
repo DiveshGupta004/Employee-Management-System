@@ -1,7 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const location = useLocation(); // Get current route
+
   return (
     <div
       className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-300 ease-in-out z-50 flex flex-col justify-between ${
@@ -17,7 +19,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <li>
             <Link
               to="/dashboard"
-              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                location.pathname === "/dashboard"
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
+              }`}
             >
               <span className="text-xl">📊</span>
               <span
@@ -32,7 +38,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <li>
             <Link
               to="/attendance"
-              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                location.pathname === "/attendance"
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
+              }`}
             >
               <span className="text-xl">📅</span>
               <span
@@ -47,7 +57,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <li>
             <Link
               to="/employee-table"
-              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                location.pathname === "/employee-table"
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
+              }`}
             >
               <span className="text-xl">👨‍💼</span>
               <span
@@ -59,6 +73,25 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </span>
             </Link>
           </li>
+          <li>
+            <Link
+              to="/leave-approval"
+              className={`flex items-center p-3 rounded-lg transition-colors ${
+                location.pathname === "/leave-approval"
+                  ? "bg-gray-700"
+                  : "hover:bg-gray-700"
+              }`}
+            >
+              <span className="text-xl">📝</span> {/* Professional Notepad Icon */}
+              <span
+                className={`ml-4 whitespace-nowrap transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "opacity-0 invisible"
+                }`}
+              >
+                Leave Requests
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
 
@@ -66,7 +99,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       <div className="p-5 border-t border-gray-600">
         <Link
           to="/settings"
-          className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+          className={`flex items-center p-3 rounded-lg transition-colors ${
+            location.pathname === "/settings" ? "bg-gray-700" : "hover:bg-gray-700"
+          }`}
         >
           <span className="text-xl">⚙️</span>
           <span
