@@ -4,13 +4,14 @@ import { Link } from "react-router-dom";
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   return (
     <div
-      className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-300 ease-in-out z-50 ${
+      className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-300 ease-in-out z-50 flex flex-col justify-between ${
         isSidebarOpen ? "w-64" : "w-0"
       } overflow-hidden`}
       onMouseEnter={() => setIsSidebarOpen(true)}
       onMouseLeave={() => setIsSidebarOpen(false)}
     >
-      <div className="p-5 flex flex-col h-full mt-20"> {/* Added mt-10 */}
+      {/* Sidebar Content */}
+      <div className="p-5 mt-20">
         {/* Navigation Links */}
         <ul className="space-y-4">
           <li>
@@ -20,8 +21,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             >
               <span className="text-xl">📊</span>
               <span
-                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
-                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                className={`ml-4 whitespace-nowrap transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "opacity-0 invisible"
                 }`}
               >
                 Dashboard
@@ -35,8 +36,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             >
               <span className="text-xl">📅</span>
               <span
-                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
-                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                className={`ml-4 whitespace-nowrap transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "opacity-0 invisible"
                 }`}
               >
                 Attendance
@@ -50,8 +51,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             >
               <span className="text-xl">👨‍💼</span>
               <span
-                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
-                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                className={`ml-4 whitespace-nowrap transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "opacity-0 invisible"
                 }`}
               >
                 Employee Table
@@ -59,6 +60,23 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             </Link>
           </li>
         </ul>
+      </div>
+
+      {/* Settings Section - Placed at the Bottom */}
+      <div className="p-5 border-t border-gray-600">
+        <Link
+          to="/settings"
+          className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          <span className="text-xl">⚙️</span>
+          <span
+            className={`ml-4 whitespace-nowrap transition-opacity duration-200 ${
+              isSidebarOpen ? "opacity-100" : "opacity-0 invisible"
+            }`}
+          >
+            Settings
+          </span>
+        </Link>
       </div>
     </div>
   );
