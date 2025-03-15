@@ -22,8 +22,7 @@ const CalendarWidget = () => {
 
   // Highlight today's date
   const tileClassName = ({ date }) => {
-    const isToday = date.toDateString() === new Date().toDateString();
-    return isToday
+    return date.toDateString() === new Date().toDateString()
       ? "bg-blue-200 text-black font-bold rounded-lg"
       : date.getDay() === 0
       ? "text-red-500"
@@ -31,22 +30,25 @@ const CalendarWidget = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md w-full max-w-sm border border-gray-300 dark:border-gray-600">
+    <div className="bg-white dark:bg-gray-800 p-3 rounded-xl shadow-md w-full max-w-sm border border-gray-300 dark:border-gray-600 h-[400px] flex flex-col justify-between">
+      
       {/* Month & Year Display */}
-      <div className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+      <div className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200">
         {activeStartDate.toLocaleString("default", { month: "long", year: "numeric" })}
       </div>
 
-      {/* Calendar */}
-      <Calendar
-        onChange={setDate}
-        value={date}
-        activeStartDate={activeStartDate}
-        view="month"
-        onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
-        className="w-full bg-white dark:bg-gray-800 p-2 rounded-lg"
-        tileClassName={tileClassName}
-      />
+      {/* Calendar Container (Fixed Height) */}
+      <div className="flex-grow overflow-hidden">
+        <Calendar
+          onChange={setDate}
+          value={date}
+          activeStartDate={activeStartDate}
+          view="month"
+          onActiveStartDateChange={({ activeStartDate }) => setActiveStartDate(activeStartDate)}
+          className="w-full bg-white dark:bg-gray-800 p-2 rounded-lg"
+          tileClassName={tileClassName}
+        />
+      </div>
 
       {/* Navigation Buttons */}
       <div className="flex justify-between mt-3">
