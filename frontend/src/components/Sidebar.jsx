@@ -58,6 +58,21 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </span>
             </Link>
           </li>
+          <li>
+            <Link
+              to="/addfields"
+              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <span className="text-xl">👨‍💼</span>
+              <span
+                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                Add Fields
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

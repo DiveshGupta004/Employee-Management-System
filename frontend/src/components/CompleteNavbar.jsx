@@ -14,8 +14,8 @@ const CompleteNavbar = () => {
       {/* Main Content */}
       <div className="flex-1">
         <TopBar setIsSidebarOpen={setIsSidebarOpen} />
-        <div className="p-4 mt-16">{/* Offset for fixed TopBar */}
-          <Outlet />  {/* This is where child components/routes will be rendered */}
+        <div className="p-4 mt-16">
+         
         </div>
       </div>
     </div>
