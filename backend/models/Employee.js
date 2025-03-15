@@ -21,6 +21,10 @@ const Employee = sequelize.define('Employee', {
         allowNull: false,
         unique: true
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     departmentId: {
         type: DataTypes.INTEGER,
         references: { model: 'Department', key: 'id' }

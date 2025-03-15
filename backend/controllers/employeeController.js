@@ -1,6 +1,6 @@
 const { Employee } = require("../models");
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require('bcrypt');
 const login = async (req, res) => {
     try {
         const { email } = req.body;
@@ -29,8 +29,23 @@ const login = async (req, res) => {
 
 const createEmployee = async (req, res) => {
     try {
-        const employee = await Employee.create(req.body);
-        res.status(201).json({ message: "Employee created successfully", data: employee });
+        // Destructure the password and other fields from req.body
+        const { password, ...otherDetails } = req.body;
+
+        // Generate a salt and hash the password
+        const salt = await bcrypt.genSalt(10);  // You can adjust the number of rounds based on your security requirement
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create the employee with the hashed password
+        const employee = await Employee.create({
+            ...otherDetails,
+            password: hashedPassword
+        });
+
+        // Respond with the created employee data
+        // Note: It's often a good practice not to send sensitive data like the password back in the response
+        const { password: _, ...employeeData } = employee.get({ plain: true });
+        res.status(201).json({ message: "Employee created successfully", data: employeeData });
     } catch (error) {
         res.status(500).json({ message: "Error creating employee", error: error.message });
     }
@@ -55,10 +70,17 @@ const getEmployeeById = async (req, res) => {
     }
 };
 
+
 const updateEmployee = async (req, res) => {
     try {
         const employee = await Employee.findByPk(req.params.id);
         if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+        // If the password is being updated, hash it before saving
+        if (req.body.password) {
+            const saltRounds = 10;
+            req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+        }
 
         await employee.update(req.body);
         res.json({ message: "Employee updated successfully", data: employee });
@@ -66,6 +88,7 @@ const updateEmployee = async (req, res) => {
         res.status(500).json({ message: "Error updating employee", error: error.message });
     }
 };
+
 
 const deleteEmployee = async (req, res) => {
     try {
