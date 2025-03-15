@@ -45,21 +45,7 @@ const Login = () => {
   };
   
 
-  const handleLogout = async () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-    if (!confirmLogout) return;
-
-    try {
-      await fetch("http://localhost:5000/api/auth/logout", {
-        method: "POST",
-        credentials: "include", // Ensure cookies are sent with the request
-      });
-
-      navigate("/"); // Redirect to login page after logout
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  
 
   return (
     <div className="bg-gray-100 flex items-center justify-center min-h-screen">
