@@ -9,27 +9,17 @@ router.post("/login", adminController.login);
 router.post("/forgot-password", adminController.forgotPassword);
 router.post("/reset-password", adminController.resetPassword);
 
-// ✅ Verify JWT Token (for authentication checks)
-router.get("/verify-token", authenticateAdmin, (req, res) => {
-    res.json({ message: "Authenticated", user: req.admin }); // ✅ Corrected key
-});
-
-// ✅ Logout Route
-router.post("/logout", (req, res) => {
-    if (!req.cookies?.auth_token) {
-        return res.status(400).json({ error: "No active session" });
+router.get('/validate', (req, res) => {
+    if (req.cookies.auth_token) {
+      // Verify the token and return success if valid
+      return res.status(200).json({ isAuthenticated: true });
+    } else {
+      return res.status(401).json({ isAuthenticated: false });
     }
-
-    res.clearCookie("auth_token", { 
-        httpOnly: true,   
-        secure: false,   // ❌ Set to `false` for local testing (Change to `true` in production with HTTPS)
-        sameSite: "Lax",
-        path: "/"        
-    });
-
-    res.json({ message: "Logged out successfully" });
 });
 
-
-
+router.post('/logout', (req, res) => {
+    res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
+    res.status(200).json({ message: 'Logged out successfully' });
+  });
 module.exports = router;

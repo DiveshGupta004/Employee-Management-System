@@ -161,8 +161,4 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-// ✅ Logout Admin
-exports.logout = async (req, res) => {
-    res.clearCookie("auth_token");
-    res.json({ message: "Logout successful" });
-};
+
