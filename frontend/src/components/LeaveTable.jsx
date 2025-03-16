@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiCheck, FiX } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion"; // ✅ Import Framer Motion
 
 const LeaveRequestsAdmin = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -41,7 +42,7 @@ const LeaveRequestsAdmin = () => {
         throw new Error(errorData.message || "Failed to update leave status");
       }
 
-      // Update state after approval/rejection
+      // Animate row removal
       setLeaveRequests((prevRequests) =>
         prevRequests.map((req) =>
           req.id === id ? { ...req, status: newStatus } : req
@@ -64,10 +65,17 @@ const LeaveRequestsAdmin = () => {
   const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
   const currentRequests = filteredRequests.slice(indexOfFirstRequest, indexOfLastRequest);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
-    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-md border border-gray-700">
+    <motion.div
+      className="bg-gray-800 text-white p-6 rounded-lg shadow-md border border-gray-700"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
+    >
       {/* Header */}
       <h2 className="text-2xl font-semibold mb-4">Leave Requests</h2>
 
@@ -105,81 +113,73 @@ const LeaveRequestsAdmin = () => {
             </tr>
           </thead>
           <tbody>
-            {currentRequests.length > 0 ? (
-              currentRequests.map((request, index) => (
-                <tr
-                  key={request.id}
-                  className={`${
-                    index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
-                  } hover:bg-gray-600 transition`}
-                >
-                  <td className="p-3 border border-gray-600">{request.Employee.name}</td>
-                  <td className="p-3 border border-gray-600">{request.startDate}</td>
-                  <td className="p-3 border border-gray-600">{request.endDate}</td>
-                  <td className="p-3 border border-gray-600">{request.reason}</td>
-                  <td className="p-3 border border-gray-600">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        request.status === "Approved"
-                          ? "bg-green-700 text-green-200"
-                          : request.status === "Rejected"
-                          ? "bg-red-700 text-red-200"
-                          : "bg-yellow-600 text-yellow-200"
-                      }`}
-                    >
-                      {request.status}
-                    </span>
+            <AnimatePresence>
+              {currentRequests.length > 0 ? (
+                currentRequests.map((request, index) => (
+                  <motion.tr
+                    key={request.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
+                    } hover:bg-gray-600 transition-all duration-200`}
+                  >
+                    <td className="p-3 border border-gray-600">{request.Employee.name}</td>
+                    <td className="p-3 border border-gray-600">{request.startDate}</td>
+                    <td className="p-3 border border-gray-600">{request.endDate}</td>
+                    <td className="p-3 border border-gray-600">{request.reason}</td>
+                    <td className="p-3 border border-gray-600">
+                      <motion.span
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className={`px-2 py-1 rounded text-xs font-semibold ${
+                          request.status === "Approved"
+                            ? "bg-green-700 text-green-200"
+                            : request.status === "Rejected"
+                            ? "bg-red-700 text-red-200"
+                            : "bg-yellow-600 text-yellow-200"
+                        }`}
+                      >
+                        {request.status}
+                      </motion.span>
+                    </td>
+                    <td className="p-3 border border-gray-600">
+                      {request.status === "Pending" ? (
+                        <div className="space-x-2">
+                          <button
+                            className="text-green-400 hover:bg-green-700 px-2 py-1 rounded transition"
+                            onClick={() => updateLeaveStatus(request.id, "Approved")}
+                          >
+                            <FiCheck className="inline w-4 h-4" />
+                          </button>
+                          <button
+                            className="text-red-400 hover:bg-red-700 px-2 py-1 rounded transition"
+                            onClick={() => updateLeaveStatus(request.id, "Rejected")}
+                          >
+                            <FiX className="inline w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">Decision Made</span>
+                      )}
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <td colSpan="6" className="text-center p-4 text-gray-400">
+                    No leave requests found.
                   </td>
-                  <td className="p-3 border border-gray-600">
-                    {request.status === "Pending" ? (
-                      <div className="space-x-2">
-                        <button
-                          className="text-green-400 hover:bg-green-700 px-2 py-1 rounded transition"
-                          onClick={() => updateLeaveStatus(request.id, "Approved")}
-                        >
-                          <FiCheck className="inline w-4 h-4" />
-                        </button>
-                        <button
-                          className="text-red-400 hover:bg-red-700 px-2 py-1 rounded transition"
-                          onClick={() => updateLeaveStatus(request.id, "Rejected")}
-                        >
-                          <FiX className="inline w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Decision Made</span>
-                    )}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-400">
-                  No leave requests found.
-                </td>
-              </tr>
-            )}
+                </motion.tr>
+              )}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
-      <div className="flex justify-center mt-4">
-        {Array.from({ length: Math.ceil(filteredRequests.length / requestsPerPage) }).map((_, index) => (
-          <button
-            key={index}
-            className={`px-3 py-1 mx-1 rounded text-sm font-semibold transition ${
-              currentPage === index + 1
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-            }`}
-            onClick={() => paginate(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
-    </div>
+    </motion.div>
   );
 };
 
