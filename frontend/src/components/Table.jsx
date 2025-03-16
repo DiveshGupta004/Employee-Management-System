@@ -87,6 +87,11 @@ function Table() {
     };
 
     const handleSearch = async () => {
+        // if (searchQuery.trim() === "") {
+        //     setFilteredEmployees(employees);  // ✅ Reset to full employee list if search is empty
+        //     return;
+        // }
+        
         try {
             const response = await fetch(`http://localhost:5000/api/employees?search=${searchQuery}`, { credentials: "include" });
             const data = await response.json();
@@ -192,8 +197,9 @@ function Table() {
                 <div className="text-gray-500">{employee.email}</div>
             </td>
             <td className="px-6 py-4">{employee.phone}</td>
-            <td className="px-6 py-4">{departments[employee.departmentId] ?? "Unknown"}</td>
-            <td className="px-6 py-4">{designations[employee.designationId] ?? "Unknown"}</td>
+            {/* <td className="px-6 py-4">{departments[employee.departmentId] ?? "Unknown"}</td> */}
+            <td className="px-6 py-4">{employee.department}</td>
+            <td className="px-6 py-4">{employee.designation}</td>
             <td className="px-6 py-4">{employee.salary}</td>
             <td className="px-6 py-4">{employee.joiningDate}</td>
             <td className="px-6 py-4">
