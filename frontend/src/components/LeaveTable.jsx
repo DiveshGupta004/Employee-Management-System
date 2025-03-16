@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiCheck, FiX } from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 
 const LeaveRequestsAdmin = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -13,7 +13,6 @@ const LeaveRequestsAdmin = () => {
     fetchLeaveRequests();
   }, []);
 
-  // Fetch Leave Requests
   const fetchLeaveRequests = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/leaves", {
@@ -26,7 +25,6 @@ const LeaveRequestsAdmin = () => {
     }
   };
 
-  // Update Leave Status (Approve/Reject)
   const updateLeaveStatus = async (id, newStatus) => {
     const endpoint = `http://localhost:5000/api/leaves/${id}/${newStatus === "Approved" ? "approve" : "reject"}`;
 
@@ -42,7 +40,6 @@ const LeaveRequestsAdmin = () => {
         throw new Error(errorData.message || "Failed to update leave status");
       }
 
-      // Animate row removal
       setLeaveRequests((prevRequests) =>
         prevRequests.map((req) =>
           req.id === id ? { ...req, status: newStatus } : req
@@ -53,33 +50,26 @@ const LeaveRequestsAdmin = () => {
     }
   };
 
-  // Filter & search logic
   const filteredRequests = leaveRequests.filter(
     (request) =>
       (statusFilter === "All" || request.status === statusFilter) &&
       request.Employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const indexOfLastRequest = currentPage * requestsPerPage;
   const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
   const currentRequests = filteredRequests.slice(indexOfFirstRequest, indexOfLastRequest);
 
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
   return (
     <motion.div
       className="bg-gray-800 text-white p-6 rounded-lg shadow-md border border-gray-700"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
-      {/* Header */}
       <h2 className="text-2xl font-semibold mb-4">Leave Requests</h2>
 
-      {/* Search & Filter Section */}
       <div className="flex flex-wrap items-center gap-4 mb-4">
         <input
           type="text"
@@ -100,41 +90,38 @@ const LeaveRequestsAdmin = () => {
         </select>
       </div>
 
-      {/* Leave Requests Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-700 bg-gray-900">
-        <table className="w-full border-collapse text-sm">
-          <thead className="bg-gray-700 text-white">
-            <tr>
-              {["Employee", "Start Date", "End Date", "Reason", "Status", "Actions"].map((header) => (
-                <th key={header} className="p-3 text-left border border-gray-600">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <AnimatePresence>
+      {/* Animated Table Wrapper */}
+      <AnimatePresence>
+        <motion.div
+          className="overflow-x-auto rounded-lg border border-gray-700 bg-gray-900"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-gray-700 text-white">
+              <tr>
+                {["Employee", "Start Date", "End Date", "Reason", "Status", "Actions"].map((header) => (
+                  <th key={header} className="p-3 text-left border border-gray-600">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
               {currentRequests.length > 0 ? (
                 currentRequests.map((request, index) => (
-                  <motion.tr
+                  <tr
                     key={request.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className={`${
-                      index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
-                    } hover:bg-gray-600 transition-all duration-200`}
+                    className={`${index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"} hover:bg-gray-600 transition`}
                   >
                     <td className="p-3 border border-gray-600">{request.Employee.name}</td>
                     <td className="p-3 border border-gray-600">{request.startDate}</td>
                     <td className="p-3 border border-gray-600">{request.endDate}</td>
                     <td className="p-3 border border-gray-600">{request.reason}</td>
                     <td className="p-3 border border-gray-600">
-                      <motion.span
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
+                      <span
                         className={`px-2 py-1 rounded text-xs font-semibold ${
                           request.status === "Approved"
                             ? "bg-green-700 text-green-200"
@@ -144,7 +131,7 @@ const LeaveRequestsAdmin = () => {
                         }`}
                       >
                         {request.status}
-                      </motion.span>
+                      </span>
                     </td>
                     <td className="p-3 border border-gray-600">
                       {request.status === "Pending" ? (
@@ -166,19 +153,19 @@ const LeaveRequestsAdmin = () => {
                         <span className="text-gray-400 text-sm">Decision Made</span>
                       )}
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))
               ) : (
-                <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <tr>
                   <td colSpan="6" className="text-center p-4 text-gray-400">
                     No leave requests found.
                   </td>
-                </motion.tr>
+                </tr>
               )}
-            </AnimatePresence>
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </motion.div>
+      </AnimatePresence>
     </motion.div>
   );
 };

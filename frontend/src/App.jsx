@@ -8,6 +8,7 @@ import ProtectedRoute from "./routes/protectedRoute";
 import Dashboard from "./pages/Dashboard";
 import EmployeeTable from "./pages/EmployeeTable";
 import LeaveApproval from "./pages/LeaveApproval";
+import AttendancePage from "./pages/Attendance"; // ✅ Import AttendancePage
 import TopBar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 
@@ -22,7 +23,7 @@ const DashboardLayout = () => {
       {/* Main Content */}
       <div className="flex-1">
         <TopBar setIsSidebarOpen={setIsSidebarOpen} />
-        <div className="p-4 mt-16">{/* Offset for fixed TopBar */} 
+        <div className="p-4 mt-16"> {/* Offset for fixed TopBar */} 
           <Outlet />
         </div>
       </div>
@@ -44,7 +45,8 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmployeeTable />} />
-            <Route path="/leave-approval" element={<LeaveApproval />} /> {/* ✅ Add Route */}
+            <Route path="/leave-approval" element={<LeaveApproval />} />
+            <Route path="/attendance" element={<AttendancePage />} /> {/* ✅ Added Attendance Page Route */}
           </Route>
         </Route>
       </Routes>
