@@ -6,16 +6,22 @@ const Department = require("../models/Department");
 const Designation = require("../models/Designation");
 const login = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, password } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ error: "Email is required" });
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password are required" });
         }
 
         const employee = await Employee.findOne({ where: { email } });
 
         if (!employee) {
             return res.status(404).json({ error: "Employee not found" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, employee.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: "Invalid credentials" });
         }
 
         const token = jwt.sign(
@@ -49,6 +55,8 @@ const createEmployee = async (req, res) => {
             password: hashedPassword,
             ...otherDetails
         });
+        // Log this in the createEmployee and login functions
+
 
         // Respond with the created employee data
         // Note: It's often a good practice not to send sensitive data like the password back in the response
