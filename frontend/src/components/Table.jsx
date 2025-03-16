@@ -9,6 +9,7 @@ function Table() {
     const [selectedEmployee, setSelectedEmployee] = useState({});
     const [departments, setDepartments] = useState({});
     const [designations, setDesignations] = useState({});
+    const [selectedIds, setSelectedIds] = useState(new Set());
 
     useEffect(() => {
         fetchEmployees();
@@ -68,6 +69,33 @@ function Table() {
     };
 
 
+    const handleCheckboxChange = (id) => {
+        const newSelectedIds = new Set(selectedIds);
+        if (newSelectedIds.has(id)) {
+            newSelectedIds.delete(id);
+        } else {
+            newSelectedIds.add(id);
+        }
+        setSelectedIds(newSelectedIds);
+    };
+
+    const handleDelete = async () => {
+        try {
+            for (let id of selectedIds) {
+                const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to delete employee with ID ${id}`);
+                }
+            }
+            fetchEmployees(); // Re-fetch employees to update the list
+            setSelectedIds(new Set()); // Clear selected IDs
+        } catch (error) {
+            console.error('Error deleting employees:', error);
+        }
+    };
 
     const handleEditClick = (employee) => {
         setSelectedEmployee(employee);
@@ -162,9 +190,12 @@ function Table() {
                     >
                         Add Employee
                     </button>
-                    <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                        Delete
-                    </button>
+                    <button
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={handleDelete}
+                >
+                    Delete
+                </button>
                 </div>
             </div>
             <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
@@ -189,8 +220,13 @@ function Table() {
     {filteredEmployees.map((employee) => (
         <tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
             <td className="w-4 p-4">
-                <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-            </td>
+                        <input
+                            type="checkbox"
+                            className="w-4 h-4"
+                            checked={selectedIds.has(employee.id)}
+                            onChange={() => handleCheckboxChange(employee.id)}
+                        />
+                    </td>
             <td className="px-6 py-4">{employee.id}</td>
             <td className="px-6 py-4">
                 <div className="text-gray-900 dark:text-white">{employee.name}</div>
