@@ -1,6 +1,9 @@
 const { Employee } = require("../models");
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
+const { Op } = require("sequelize");
+const Department = require("../models/Department");
+const Designation = require("../models/Designation");
 const login = async (req, res) => {
     try {
         const { email } = req.body;
@@ -66,8 +69,45 @@ function generatePassword(name, joiningDate) {
 
 const getAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.findAll();
-        res.json(employees);
+        const { search } = req.query; // Capture search query from request
+
+        // Search conditions
+        let whereCondition = {};
+        if (search) {
+            whereCondition = {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${search}%` } },  // Case-insensitive search
+                    { email: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                    { status: { [Op.like]: `%${search}%` } }
+                ]
+            };
+        }
+
+        // Fetch employees with department and designation names
+        const employees = await Employee.findAll({
+            where: whereCondition,
+            include: [
+                { model: Department, as: "department", attributes: ["name"] },
+                { model: Designation, as: "designation", attributes: ["name"] }
+            ],
+            order: [["id", "ASC"]], // Sort by ID
+        });
+
+        // Format response to include department and designation names
+        const formattedEmployees = employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            email: emp.email,
+            phone: emp.phone,
+            department: emp.department ? emp.department.name : "Unknown",
+            designation: emp.designation ? emp.designation.name : "Unknown",
+            salary: emp.salary,
+            joiningDate: emp.joiningDate,
+            status: emp.status
+        }));
+
+        res.json(formattedEmployees);
     } catch (error) {
         res.status(500).json({ message: "Error fetching employees", error: error.message });
     }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import EmployeeModal from './EmployeeModal';
 function Table() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAdding, setIsAdding] = useState(false);
     const [employees, setEmployees] = useState([]);
@@ -17,12 +18,11 @@ function Table() {
 
     const fetchEmployees = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/employees', {
-                credentials: 'include'  // Make sure to include credentials if needed for cookies
-            });
+            const response = await fetch('http://localhost:5000/api/employees', { credentials: 'include' });
             if (response.ok) {
                 const data = await response.json();
                 setEmployees(data);
+                setFilteredEmployees(data);  // ✅ Update filteredEmployees initially
             } else {
                 throw new Error('Failed to fetch employees');
             }
@@ -86,6 +86,16 @@ function Table() {
         setIsModalOpen(false);
     };
 
+    const handleSearch = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/api/employees?search=${searchQuery}`, { credentials: "include" });
+            const data = await response.json();
+            setFilteredEmployees(data);
+        } catch (error) {
+            console.error("Error fetching searched employees:", error);
+        }
+    }
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
         const form = new FormData(event.target);
@@ -107,6 +117,7 @@ function Table() {
             console.log(result);
             closeModal();
             fetchEmployees();
+            setSearchQuery("");  // ✅ Reset search bar
         } catch (error) {
             console.error('Error submitting form', error);
         }
@@ -125,15 +136,15 @@ function Table() {
                             <path d="M21 21l-6-6M3 6a9 9 0 0118 0 9 9 0 01-18 0z"></path>
                         </svg>
                         <input
-                            type="text"
-                            className="pl-10 pr-4 py-2 rounded bg-gray-100 w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Search for employees"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                        />
+                        type="text"
+                        className="pl-10 pr-4 py-2 rounded bg-gray-100 w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Search for employees"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
                         <button
                             className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                            onClick={() => console.log("Searching...")}
+                            onClick={handleSearch}
                         >
                             Search
                         </button>
@@ -156,9 +167,7 @@ function Table() {
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" className="p-4">
-                                <div className="flex items-center">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                </div>
+                                Select
                             </th>
                             <th scope="col" className="px-6 py-3">ID</th>
                             <th scope="col" className="px-6 py-3">Name / Email</th>
@@ -172,42 +181,39 @@ function Table() {
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map(employee =>
+    {filteredEmployees.map((employee) => (
+        <tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+            <td className="w-4 p-4">
+                <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+            </td>
+            <td className="px-6 py-4">{employee.id}</td>
+            <td className="px-6 py-4">
+                <div className="text-gray-900 dark:text-white">{employee.name}</div>
+                <div className="text-gray-500">{employee.email}</div>
+            </td>
+            <td className="px-6 py-4">{employee.phone}</td>
+            <td className="px-6 py-4">{departments[employee.departmentId] ?? "Unknown"}</td>
+            <td className="px-6 py-4">{designations[employee.designationId] ?? "Unknown"}</td>
+            <td className="px-6 py-4">{employee.salary}</td>
+            <td className="px-6 py-4">{employee.joiningDate}</td>
+            <td className="px-6 py-4">
+                <span className={
+                    employee.status === "Active"
+                        ? "bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs"
+                        : "bg-red-200 text-red-700 py-1 px-3 rounded-full text-xs"
+                }>
+                    {employee.status}
+                </span>
+            </td>
+            <td className="px-6 py-4">
+                <button onClick={() => handleEditClick(employee)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
+                    Edit
+                </button>
+            </td>
+        </tr>
+    ))}
+</tbody>
 
-                        (
-                            <tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <td className="w-4 p-4">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                                </td>
-                                <td className="px-6 py-4">{employee.id}</td>
-                                <td className="px-6 py-4">
-                                    <div className="text-gray-900 dark:text-white">{employee.name}</div>
-                                    <div className="text-gray-500">{employee.email}</div>
-                                </td>
-                                <td className="px-6 py-4">{employee.phone}</td>
-                                <td className="px-6 py-4">{departments[employee.departmentId]}</td>
-                                <td className="px-6 py-4">{designations[employee.designationId]}</td>
-                                <td className="px-6 py-4">{employee.salary}</td>
-                                <td className="px-6 py-4">{employee.joiningDate}</td>
-                                <td className="px-6 py-4">
-    <span className={employee.status === "Active" ? 
-        "bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs" : 
-        "bg-red-200 text-red-700 py-1 px-3 rounded-full text-xs"}>
-        {employee.status}
-    </span>
-</td>
-                                <td className="px-6 py-4">
-                                    <button onClick={()=> handleEditClick(employee)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
-                                        Edit
-                                    </button>
-                                </td>
-                            </tr>
-                        )
-                        )}
-
-
-
-                    </tbody>
                 </table>
             </div>
             <EmployeeModal
