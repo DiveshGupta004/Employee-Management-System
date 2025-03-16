@@ -2,7 +2,7 @@ import React from 'react';
 
 function EmployeeModal({ isOpen, onClose, employee, isAdding, departments, designations, statuses, onSubmit }) {
     if (!isOpen) return null;
-
+const today = new Date().toISOString().split('T')[0];
     return (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
             <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -13,9 +13,9 @@ function EmployeeModal({ isOpen, onClose, employee, isAdding, departments, desig
                         <input type="text" name="email" placeholder="Email" defaultValue={isAdding ? "" : employee.email} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" />
                         <input type="text" name="phone" placeholder="Phone Number" defaultValue={isAdding ? "" : employee.phone} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" />
                         {/* Assuming password is not edited */}
-                        {isAdding && (
+                        {/* {isAdding && (
                             <input type="password" name="password" placeholder="Password" className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" />
-                        )}
+                        )} */}
                         <select name="departmentId" defaultValue={isAdding ? "default" : employee.departmentId} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full">
                             <option disabled value="default">Select Department</option>
                             {Object.entries(departments).map(([id, name]) => (
@@ -30,7 +30,13 @@ function EmployeeModal({ isOpen, onClose, employee, isAdding, departments, desig
 </select>
 
                         <input type="text" name="salary" placeholder="Salary" defaultValue={isAdding ? "" : employee.salary} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" />
-                        <input type="text" name="joiningDate" placeholder="Joining Date" defaultValue={isAdding ? "" : employee.joiningDate} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" />
+                        <input 
+                            type="date" 
+                            name="joiningDate" 
+                            defaultValue={isAdding ? today : employee.joiningDate} 
+                            className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full" 
+                            required
+                        />
                         <select name="status" defaultValue={isAdding ? "default" : employee.status} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full">
                             <option disabled value="default">Select Status</option>
                             {statuses.map(status => <option key={status} value={status}>{status}</option>)}

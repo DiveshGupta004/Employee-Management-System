@@ -190,8 +190,12 @@ function Table() {
                                 <td className="px-6 py-4">{employee.salary}</td>
                                 <td className="px-6 py-4">{employee.joiningDate}</td>
                                 <td className="px-6 py-4">
-                                    <span className="bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs">{employee.status}</span>
-                                </td>
+    <span className={employee.status === "Active" ? 
+        "bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs" : 
+        "bg-red-200 text-red-700 py-1 px-3 rounded-full text-xs"}>
+        {employee.status}
+    </span>
+</td>
                                 <td className="px-6 py-4">
                                     <button onClick={()=> handleEditClick(employee)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
                                         Edit

@@ -93,10 +93,10 @@ function Designation() {
                 </table>
             </div>
             {modalOpen && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="modal">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-30 overflow-y-auto h-full w-full z-50 flex justify-center items-center transition-opacity duration-300 ease-in-out">
+                    <div className="relative p-5 border rounded-md bg-white shadow-lg w-80">
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Edit Designation</h3>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">{currentItem ? 'Edit Designation' : 'Add Designation'}</h3>
                             <input
                                 name="name"
                                 type="text"

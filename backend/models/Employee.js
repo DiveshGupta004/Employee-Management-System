@@ -27,11 +27,13 @@ const Employee = sequelize.define('Employee', {
     },
     departmentId: {
         type: DataTypes.INTEGER,
-        references: { model: 'Department', key: 'id' }
+        references: { model: 'Department', key: 'id' },
+        onDelete: 'CASCADE' // Ensures cascading delete
     },
     designationId: {
         type: DataTypes.INTEGER,
-        references: { model: 'Designation', key: 'id' }
+        references: { model: 'Designation', key: 'id' },
+        onDelete: 'CASCADE' // Ensures cascading delete
     },
     salary: {
         type: DataTypes.DECIMAL(10, 2),

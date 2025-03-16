@@ -29,17 +29,22 @@ const login = async (req, res) => {
 
 const createEmployee = async (req, res) => {
     try {
-        // Destructure the password and other fields from req.body
-        const { password, ...otherDetails } = req.body;
+        // Destructure the relevant fields from req.body
+        const { name, joiningDate, ...otherDetails } = req.body;
 
+        // Generate the password using the name and the year of joining
+        const password = generatePassword(name, joiningDate);
+        
         // Generate a salt and hash the password
-        const salt = await bcrypt.genSalt(10);  // You can adjust the number of rounds based on your security requirement
+        const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create the employee with the hashed password
         const employee = await Employee.create({
-            ...otherDetails,
-            password: hashedPassword
+            name,
+            joiningDate,
+            password: hashedPassword,
+            ...otherDetails
         });
 
         // Respond with the created employee data
@@ -50,6 +55,14 @@ const createEmployee = async (req, res) => {
         res.status(500).json({ message: "Error creating employee", error: error.message });
     }
 };
+
+// Helper function to generate password
+function generatePassword(name, joiningDate) {
+    const yearOfJoining = new Date(joiningDate).getFullYear();
+    const initials = name.substring(0, 3).toUpperCase(); // First three letters of the name in uppercase
+    return `${initials}${yearOfJoining}`; // Concatenate to form the password
+}
+
 
 const getAllEmployees = async (req, res) => {
     try {
