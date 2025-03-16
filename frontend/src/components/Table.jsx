@@ -5,9 +5,14 @@ function Table() {
     const [isModalOpen, setModalOpen] = useState(false);
     const [isAdding, setIsAdding] = useState(false); // State to track if we are adding a new employee
     const [employees, setEmployees] = useState([]);
+    const [departments, setDepartments] = useState({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [designations , setDesignations] = useState({});
 
     useEffect(() => {
         fetchEmployees();
+        fetchDepartments();
+        fetchDesignations();
     }, []);
 
     const fetchEmployees = async () => {
@@ -26,6 +31,38 @@ function Table() {
         }
     };
 
+    const fetchDepartments = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('http://localhost:5000/api/departments', { credentials: 'include' });
+            const data = await response.json();
+            const departmentsMap = {};
+            data.forEach(dept => {
+                departmentsMap[dept.id] = dept.name;
+            });
+            setDepartments(departmentsMap);
+        } catch (error) {
+            console.error('Failed to fetch departments', error);
+        }
+        setIsLoading(false);
+    };
+
+    const fetchDesignations = async()=>{
+        setIsLoading(true);
+        try{
+            const response = await fetch('http://localhost:5000/api/designations' , { credentials: 'include' });
+            const data = await response.json();
+            const designationMap = {};
+            data.forEach(desi =>{
+                designationMap[desi.id] = desi.name;
+            });
+            setDesignations(designationMap);
+        }
+        catch(error){
+            console.log("Failed to fetch designations" , error);
+        }
+        setIsLoading(false);
+    };
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
@@ -57,9 +94,12 @@ function Table() {
         setModalOpen(false);
     };
 
+    if (isLoading) {
+        return <div>Loading...</div>; // or any loading spinner
+    }
     // Example department, designation, status options
-    const departments = ["Marketing", "Sales", "Engineering", "Human Resources"];
-    const designations = ["Manager", "Team Lead", "Engineer", "Specialist"];
+    // const departments = ["Marketing", "Sales", "Engineering", "Human Resources"];
+    // const designations = ["Manager", "Team Lead", "Engineer", "Specialist"];
     const statuses = ["Active", "Inactive", "Probation"];
 
     return (
@@ -121,8 +161,10 @@ function Table() {
                         </tr>
                     </thead>
                     <tbody>
-                        {employees.map(employee =>(
-                            <tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        {employees.map(employee =>
+                                
+                           (
+<tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td className="w-4 p-4">
                                 <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
                             </td>
@@ -132,8 +174,8 @@ function Table() {
                                 <div className="text-gray-500">{employee.email}</div>
                             </td>
                             <td className="px-6 py-4">{employee.phone}</td>
-                            <td className="px-6 py-4">{employee.departmentId}</td>
-                            <td className="px-6 py-4">{employee.designationId}</td>
+                            <td className="px-6 py-4">{departments[employee.departmentId]}</td>
+                            <td className="px-6 py-4">{designations[employee.designationId]}</td>
                             <td className="px-6 py-4">{employee.salary}</td>
                             <td className="px-6 py-4">{employee.joiningDate}</td>
                             <td className="px-6 py-4">
@@ -145,7 +187,8 @@ function Table() {
                                 </button>
                             </td>
                         </tr>
-                        ))}
+                           ) 
+)}
                         
                         
                         
