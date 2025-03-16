@@ -11,6 +11,7 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const designationRoutes = require("./routes/designationRoutes");
 const taskRoutes = require("./routes/taskRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/events", eventRoutes);
 
 // ✅ Sync Database
 sequelize
