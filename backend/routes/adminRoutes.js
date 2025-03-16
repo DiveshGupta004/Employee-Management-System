@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const { authenticateAdmin } = require("../middleware/adminMiddleware"); // ✅ Correct import
+const { authenticateAdmin } = require("../middleware/adminMiddleware");
 
 // ✅ Admin Authentication Routes
 router.post("/register", adminController.register);
@@ -11,7 +11,12 @@ router.post("/reset-password", adminController.resetPassword);
 
 // ✅ Verify JWT Token (for authentication checks)
 router.get("/verify-token", authenticateAdmin, (req, res) => {
-    res.json({ message: "Authenticated", user: req.admin }); // ✅ Corrected key
+    res.json({ message: "Authenticated", user: req.admin });
+});
+
+// ✅ FIX: Add `/validate` route to match frontend request
+router.get("/validate", authenticateAdmin, (req, res) => {
+    res.json({ isAuthenticated: true, user: req.admin });
 });
 
 // ✅ Logout Route
@@ -22,14 +27,12 @@ router.post("/logout", (req, res) => {
 
     res.clearCookie("auth_token", { 
         httpOnly: true,   
-        secure: false,   // ❌ Set to `false` for local testing (Change to `true` in production with HTTPS)
+        secure: false,   // ❌ Set to `true` in production with HTTPS
         sameSite: "Lax",
         path: "/"        
     });
 
     res.json({ message: "Logged out successfully" });
 });
-
-
 
 module.exports = router;
