@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-
+import EmployeeModal from './EmployeeModal';
 function Table() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [isAdding, setIsAdding] = useState(false); // State to track if we are adding a new employee
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
     const [employees, setEmployees] = useState([]);
+    const [selectedEmployee, setSelectedEmployee] = useState({});
     const [departments, setDepartments] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [designations , setDesignations] = useState({});
+    const [designations, setDesignations] = useState({});
 
     useEffect(() => {
         fetchEmployees();
@@ -32,7 +32,7 @@ function Table() {
     };
 
     const fetchDepartments = async () => {
-        setIsLoading(true);
+        
         try {
             const response = await fetch('http://localhost:5000/api/departments', { credentials: 'include' });
             const data = await response.json();
@@ -44,63 +44,74 @@ function Table() {
         } catch (error) {
             console.error('Failed to fetch departments', error);
         }
-        setIsLoading(false);
+      
     };
 
-    const fetchDesignations = async()=>{
-        setIsLoading(true);
-        try{
-            const response = await fetch('http://localhost:5000/api/designations' , { credentials: 'include' });
+    const fetchDesignations = async () => {
+        
+        try {
+            const response = await fetch('http://localhost:5000/api/designations', { credentials: 'include' });
             const data = await response.json();
             const designationMap = {};
-            data.forEach(desi =>{
+            data.forEach(desi => {
                 designationMap[desi.id] = desi.name;
             });
             setDesignations(designationMap);
         }
-        catch(error){
-            console.log("Failed to fetch designations" , error);
+        catch (error) {
+            console.log("Failed to fetch designations", error);
         }
-        setIsLoading(false);
+        
     };
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
+
+
     const handleEditClick = (employee) => {
         setSelectedEmployee(employee);
         setIsAdding(false);
-        setModalOpen(true);
+        setIsModalOpen(true);
     };
 
-    const handleAddEmployeeClick = () => {
-        // Reset selectedEmployee for new entries
-        setSelectedEmployee({
-            name: '',
-            email: '',
-            phone: '',
-            department: '',
-            designation: '',
-            salary: '',
-            joiningDate: '',
-            status: 'Active', // Default status can be set as Active or any other default
-            password: ''
-        });
+    const handleAddClick = () => {
+        setSelectedEmployee({});  // Clear any previous data
         setIsAdding(true);
-        setModalOpen(true);
+        setIsModalOpen(true);
     };
+
 
     const closeModal = () => {
-        setModalOpen(false);
+        setIsModalOpen(false);
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>; // or any loading spinner
-    }
-    // Example department, designation, status options
-    // const departments = ["Marketing", "Sales", "Engineering", "Human Resources"];
-    // const designations = ["Manager", "Team Lead", "Engineer", "Specialist"];
-    const statuses = ["Active", "Inactive", "Probation"];
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const form = new FormData(event.target);
+        const formData = Object.fromEntries(form.entries());
+    
+        const url = isAdding ? 'http://localhost:5000/api/employees' : `http://localhost:5000/api/employees/${selectedEmployee.id}`;
+        const method = isAdding ? 'POST' : 'PUT';
+    
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+                credentials: 'include'
+            });
+            const result = await response.json();
+            console.log(result);
+            closeModal();
+            fetchEmployees();
+        } catch (error) {
+            console.error('Error submitting form', error);
+        }
+    };
+    const statuses = ["Active", "Inactive"];
 
     return (
         <div className="p-4">
@@ -120,7 +131,7 @@ function Table() {
                             value={searchQuery}
                             onChange={handleSearchChange}
                         />
-                        <button 
+                        <button
                             className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                             onClick={() => console.log("Searching...")}
                         >
@@ -129,9 +140,9 @@ function Table() {
                     </div>
                 </div>
                 <div className="flex space-x-2">
-                    <button 
+                    <button
                         className="bg-pink-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={handleAddEmployeeClick}
+                        onClick={handleAddClick}
                     >
                         Add Employee
                     </button>
@@ -146,7 +157,7 @@ function Table() {
                         <tr>
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
-                                    <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                                    <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
                                 </div>
                             </th>
                             <th scope="col" className="px-6 py-3">ID</th>
@@ -162,73 +173,49 @@ function Table() {
                     </thead>
                     <tbody>
                         {employees.map(employee =>
-                                
-                           (
-<tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <td className="w-4 p-4">
-                                <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-                            </td>
-                            <td className="px-6 py-4">{employee.id}</td>
-                            <td className="px-6 py-4">
-                                <div className="text-gray-900 dark:text-white">{employee.name}</div>
-                                <div className="text-gray-500">{employee.email}</div>
-                            </td>
-                            <td className="px-6 py-4">{employee.phone}</td>
-                            <td className="px-6 py-4">{departments[employee.departmentId]}</td>
-                            <td className="px-6 py-4">{designations[employee.designationId]}</td>
-                            <td className="px-6 py-4">{employee.salary}</td>
-                            <td className="px-6 py-4">{employee.joiningDate}</td>
-                            <td className="px-6 py-4">
-                                <span className="bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs">{employee.status}</span>
-                            </td>
-                            <td className="px-6 py-4">
-                                <button className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
-                                    Edit
-                                </button>
-                            </td>
-                        </tr>
-                           ) 
-)}
-                        
-                        
-                        
+
+                        (
+                            <tr key={employee.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <td className="w-4 p-4">
+                                    <input type="checkbox" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                </td>
+                                <td className="px-6 py-4">{employee.id}</td>
+                                <td className="px-6 py-4">
+                                    <div className="text-gray-900 dark:text-white">{employee.name}</div>
+                                    <div className="text-gray-500">{employee.email}</div>
+                                </td>
+                                <td className="px-6 py-4">{employee.phone}</td>
+                                <td className="px-6 py-4">{departments[employee.departmentId]}</td>
+                                <td className="px-6 py-4">{designations[employee.designationId]}</td>
+                                <td className="px-6 py-4">{employee.salary}</td>
+                                <td className="px-6 py-4">{employee.joiningDate}</td>
+                                <td className="px-6 py-4">
+                                    <span className="bg-green-200 text-green-700 py-1 px-3 rounded-full text-xs">{employee.status}</span>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <button onClick={()=> handleEditClick(employee)} className="text-indigo-600 hover:text-indigo-900 cursor-pointer">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        )
+                        )}
+
+
+
                     </tbody>
                 </table>
             </div>
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3 text-center">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">{isAdding ? "Add New Employee" : "Edit Employee"}</h3>
-                            <form className="mt-2 px-7 py-3 space-y-4">
-                                <input type="text" placeholder="Name" defaultValue={selectedEmployee.name} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <input type="text" placeholder="Email" defaultValue={selectedEmployee.email} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <input type="text" placeholder="Phone Number" defaultValue={selectedEmployee.phone} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <input type="password" placeholder="Password" defaultValue={selectedEmployee.password} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <select defaultValue={selectedEmployee.department} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full">
-                                    {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
-                                </select>
-                                <select defaultValue={selectedEmployee.designation} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full">
-                                    {designations.map(design => <option key={design} value={design}>{design}</option>)}
-                                </select>
-                                <input type="text" placeholder="Salary" defaultValue={selectedEmployee.salary} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <input type="text" placeholder="Joining Date" defaultValue={selectedEmployee.joiningDate} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full"/>
-                                <select defaultValue={selectedEmployee.status} className="mb-3 px-4 py-2 border rounded-lg text-gray-700 w-full">
-                                    {statuses.map(status => <option key={status} value={status}>{status}</option>)}
-                                </select>
-                                <div className="flex justify-end space-x-2">
-                                    <button type="button" onClick={closeModal} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                        {isAdding ? "Add" : "Save"}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <EmployeeModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                onSubmit={handleSubmit}
+                employee={selectedEmployee}
+                isAdding={isAdding}
+                departments={departments} // Assume these are fetched or static data
+                designations={designations}
+                statuses={statuses}
+            />
         </div>
     );
 }
