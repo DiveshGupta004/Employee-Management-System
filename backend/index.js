@@ -11,6 +11,7 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const designationRoutes = require("./routes/designationRoutes");
 const taskRoutes = require("./routes/taskRoutes");
+const leaveRoutes = require("./routes/leaveRoutes"); // ✅ Import Leave Routes
 
 const app = express();
 
@@ -21,7 +22,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(cookieParser()); // ✅ Parse cookies
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -31,13 +32,14 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/leaves", leaveRoutes); // ✅ Add Leave Routes
 
 // ✅ Sync Database
 sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Database connection established successfully.");
-    return sequelize.sync({ force: false });
+    return sequelize.sync({ alter: true });
   })
   .then(() => {
     console.log("✅ Database synced successfully.");
@@ -45,22 +47,6 @@ sequelize
   .catch((err) => {
     console.error("❌ Database connection failed:", err);
   });
-
-
-app.get('/api/auth/validate', (req, res) => {
-  if (req.cookies.auth_token) {
-    // Verify the token and return success if valid
-    return res.status(200).json({ isAuthenticated: true });
-  } else {
-    return res.status(401).json({ isAuthenticated: false });
-  }
-});
-
-app.post('/api/auth/logout', (req, res) => {
-  res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
-  res.status(200).json({ message: 'Logged out successfully' });
-});
-
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;

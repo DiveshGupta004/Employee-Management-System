@@ -7,14 +7,10 @@ import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./routes/protectedRoute";
 import Dashboard from "./pages/Dashboard";
 import EmployeeTable from "./pages/EmployeeTable";
+import LeaveApproval from "./pages/LeaveApproval";
 import TopBar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 
-// Layout component that includes TopBar, Sidebar, and nested routes
-import NavBar from "./components/CompleteNavbar";
-import EmpoloyeeTable from "./pages/EmployeeTable";
-import Addfields from './pages/Addfields';
-// Layout component that includes NavBar and an Outlet for nested routes
 const DashboardLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -48,8 +44,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmployeeTable />} />
-            <Route path="/employee-table" element={<EmpoloyeeTable />} />
-            <Route path="/addfields" element={<Addfields />} />
+            <Route path="/leave-approval" element={<LeaveApproval />} /> {/* ✅ Add Route */}
           </Route>
         </Route>
       </Routes>
