@@ -17,16 +17,12 @@ router.get('/validate', (req, res) => {
       return res.status(401).json({ isAuthenticated: false });
     }
 
-    // res.clearCookie("auth_token", { 
-    //     httpOnly: true,   
-    //     secure: false,   // ❌ Set to `false` for local testing (Change to `true` in production with HTTPS)
-    //     sameSite: "Lax",
-    //     path: "/"        
-    // });
-
-    // res.json({ message: "Logged out successfully" });
+    
 });
 
-
+router.post('/logout', (req, res) => {
+  res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
+  res.status(200).json({ message: 'Logged out successfully' });
+});
 
 module.exports = router;
