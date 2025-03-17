@@ -12,11 +12,11 @@ function CompleteNavbar() {
   return (
     <div className="flex">
       {/* Sidebar */}
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setSidebarOpen} />
 
       {/* Main Content */}
       <div className="flex-1">
-        <TopBar setIsSidebarOpen={setIsSidebarOpen} />
+        <TopBar setIsSidebarOpen={setSidebarOpen} />
         <div className="p-4 mt-16">
          
         </div>

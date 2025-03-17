@@ -17,14 +17,14 @@ router.get('/validate', (req, res) => {
       return res.status(401).json({ isAuthenticated: false });
     }
 
-    res.clearCookie("auth_token", { 
-        httpOnly: true,   
-        secure: false,   // ❌ Set to `false` for local testing (Change to `true` in production with HTTPS)
-        sameSite: "Lax",
-        path: "/"        
-    });
+    // res.clearCookie("auth_token", { 
+    //     httpOnly: true,   
+    //     secure: false,   // ❌ Set to `false` for local testing (Change to `true` in production with HTTPS)
+    //     sameSite: "Lax",
+    //     path: "/"        
+    // });
 
-    res.json({ message: "Logged out successfully" });
+    // res.json({ message: "Logged out successfully" });
 });
 
 
