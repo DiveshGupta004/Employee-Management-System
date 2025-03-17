@@ -10,6 +10,7 @@ import NavBar from "./components/CompleteNavbar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
 import Addfields from './pages/Addfields';
 import AuthCheck from "./components/AuthCheck";
+import Events from "./pages/Events";
 // Layout component that includes NavBar and an Outlet for nested routes
 const DashboardLayout = () => {
   return (
@@ -23,7 +24,7 @@ const DashboardLayout = () => {
 function App() {
   return (
     <Router>
-      <AuthCheck/>
+      {/* <AuthCheck/> */}
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
@@ -36,6 +37,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmpoloyeeTable />} />
             <Route path="/addfields" element={<Addfields />} />
+            <Route path="/events" element={<Events />} />
           </Route>
         </Route>
       </Routes>
