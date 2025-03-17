@@ -1,6 +1,9 @@
 const { Employee } = require("../models");
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require('bcrypt');
+const { Op } = require("sequelize");
+const Department = require("../models/Department");
+const Designation = require("../models/Designation");
 const login = async (req, res) => {
     try {
         const { email } = req.body;
@@ -29,17 +32,82 @@ const login = async (req, res) => {
 
 const createEmployee = async (req, res) => {
     try {
-        const employee = await Employee.create(req.body);
-        res.status(201).json({ message: "Employee created successfully", data: employee });
+        // Destructure the relevant fields from req.body
+        const { name, joiningDate, ...otherDetails } = req.body;
+
+        // Generate the password using the name and the year of joining
+        const password = generatePassword(name, joiningDate);
+        
+        // Generate a salt and hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Create the employee with the hashed password
+        const employee = await Employee.create({
+            name,
+            joiningDate,
+            password: hashedPassword,
+            ...otherDetails
+        });
+
+        // Respond with the created employee data
+        // Note: It's often a good practice not to send sensitive data like the password back in the response
+        const { password: _, ...employeeData } = employee.get({ plain: true });
+        res.status(201).json({ message: "Employee created successfully", data: employeeData });
     } catch (error) {
         res.status(500).json({ message: "Error creating employee", error: error.message });
     }
 };
 
+// Helper function to generate password
+function generatePassword(name, joiningDate) {
+    const yearOfJoining = new Date(joiningDate).getFullYear();
+    const initials = name.substring(0, 3).toUpperCase(); // First three letters of the name in uppercase
+    return `${initials}${yearOfJoining}`; // Concatenate to form the password
+}
+
+
 const getAllEmployees = async (req, res) => {
     try {
-        const employees = await Employee.findAll();
-        res.json(employees);
+        const { search } = req.query; // Capture search query from request
+
+        // Search conditions
+        let whereCondition = {};
+        if (search) {
+            whereCondition = {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${search}%` } },  // Case-insensitive search
+                    { email: { [Op.like]: `%${search}%` } },
+                    { phone: { [Op.like]: `%${search}%` } },
+                    { status: { [Op.like]: `%${search}%` } }
+                ]
+            };
+        }
+
+        // Fetch employees with department and designation names
+        const employees = await Employee.findAll({
+            where: whereCondition,
+            include: [
+                { model: Department, as: "department", attributes: ["name"] },
+                { model: Designation, as: "designation", attributes: ["name"] }
+            ],
+            order: [["id", "ASC"]], // Sort by ID
+        });
+
+        // Format response to include department and designation names
+        const formattedEmployees = employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            email: emp.email,
+            phone: emp.phone,
+            department: emp.department ? emp.department.name : "Unknown",
+            designation: emp.designation ? emp.designation.name : "Unknown",
+            salary: emp.salary,
+            joiningDate: emp.joiningDate,
+            status: emp.status
+        }));
+
+        res.json(formattedEmployees);
     } catch (error) {
         res.status(500).json({ message: "Error fetching employees", error: error.message });
     }
@@ -55,10 +123,17 @@ const getEmployeeById = async (req, res) => {
     }
 };
 
+
 const updateEmployee = async (req, res) => {
     try {
         const employee = await Employee.findByPk(req.params.id);
         if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+        // If the password is being updated, hash it before saving
+        if (req.body.password) {
+            const saltRounds = 10;
+            req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+        }
 
         await employee.update(req.body);
         res.json({ message: "Employee updated successfully", data: employee });
@@ -66,6 +141,7 @@ const updateEmployee = async (req, res) => {
         res.status(500).json({ message: "Error updating employee", error: error.message });
     }
 };
+
 
 const deleteEmployee = async (req, res) => {
     try {

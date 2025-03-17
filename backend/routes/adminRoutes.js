@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const { authenticateAdmin } = require("../middleware/adminMiddleware"); // ✅ Correct import
+const { authenticateAdmin } = require("../middleware/adminMiddleware");
 
 // ✅ Admin Authentication Routes
 router.post("/register", adminController.register);
@@ -16,10 +16,13 @@ router.get('/validate', (req, res) => {
     } else {
       return res.status(401).json({ isAuthenticated: false });
     }
+
+    
 });
 
 router.post('/logout', (req, res) => {
-    res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
-    res.status(200).json({ message: 'Logged out successfully' });
-  });
+  res.cookie('auth_token', '', { expires: new Date(0) });  // Clear the auth_token cookie
+  res.status(200).json({ message: 'Logged out successfully' });
+});
+
 module.exports = router;

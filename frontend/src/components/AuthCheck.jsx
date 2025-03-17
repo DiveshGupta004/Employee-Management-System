@@ -1,29 +1,39 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // make sure you have react-router-dom installed
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation
 
 const AuthCheck = () => {
   const navigate = useNavigate();
+  const location = useLocation();  // Get access to the current location
 
   useEffect(() => {
     const validateToken = async () => {
       try {
-        // Axios call to backend to validate the token
         const response = await axios.get('http://localhost:5000/api/auth/validate', {
-          withCredentials: true  // to send httpOnly cookies to backend
+          withCredentials: true  // Ensure cookies are sent with the request
         });
-        if (response.data.isAuthenticated) {
-          navigate('/dashboard');  // Redirect to main page if the token is valid
-        } else {
-          navigate('/');  // Redirect to login page if the token is not valid
+        if (!response.data.isAuthenticated) {
+          // Redirect to login only if the user is not authenticated
+          // and they are not already on the login page
+          if (location.pathname !== '/') {
+            navigate('/');
+          }
         }
+        // If the user is authenticated and trying to access the root (login page), redirect to dashboard
+        else if (location.pathname === '/' || location.pathname === '/login') {
+          navigate('/dashboard');
+        }
+        // No redirection if the user is authenticated and not on the login page
       } catch (error) {
-        navigate('/');  // Redirect to login page on error
+        // Redirect to login page on error
+        if (location.pathname !== '/') {
+          navigate('/');
+        }
       }
     };
 
     validateToken();
-  }, [navigate]);
+  }, [navigate, location.pathname]);  // Depend on location.pathname to re-run when it changes
 
   return null; // This component does not render anything
 };

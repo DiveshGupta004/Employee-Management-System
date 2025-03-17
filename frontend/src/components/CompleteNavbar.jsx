@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
-import Sidebar from './Sidebar';  // Import the Sidebar component
-import TopBar from './TopBar';    // Import the TopBar component
-import { Outlet } from 'react-router-dom';  // Import Outlet if using React Router
+import Sidebar from './Sidebar'; // Update the path as necessary
+import TopBar from './Topbar'; // Update the path as necessary
 
-const CompleteNavbar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+function CompleteNavbar() {
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+
+    const toggleSidebar = () => {
+        setSidebarOpen(!isSidebarOpen);
+    };
 
   return (
     <div className="flex">
       {/* Sidebar */}
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setSidebarOpen} />
 
       {/* Main Content */}
       <div className="flex-1">
-        <TopBar setIsSidebarOpen={setIsSidebarOpen} />
+        <TopBar setIsSidebarOpen={setSidebarOpen} />
         <div className="p-4 mt-16">
          
         </div>

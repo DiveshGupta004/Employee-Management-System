@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config');
-
+const Department = require("./Department");
+const Designation = require("./Designation");
 const Employee = sequelize.define('Employee', {
     id: {
         type: DataTypes.INTEGER,
@@ -21,13 +22,19 @@ const Employee = sequelize.define('Employee', {
         allowNull: false,
         unique: true
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     departmentId: {
         type: DataTypes.INTEGER,
-        references: { model: 'Department', key: 'id' }
+        references: { model: 'Department', key: 'id' },
+        onDelete: 'CASCADE' // Ensures cascading delete
     },
     designationId: {
         type: DataTypes.INTEGER,
-        references: { model: 'Designation', key: 'id' }
+        references: { model: 'Designation', key: 'id' },
+        onDelete: 'CASCADE' // Ensures cascading delete
     },
     salary: {
         type: DataTypes.DECIMAL(10, 2),
@@ -45,5 +52,6 @@ const Employee = sequelize.define('Employee', {
     tableName: 'Employee',  // Explicit table name
     timestamps: false
 });
-
+Employee.belongsTo(Department, { foreignKey: "departmentId", as: "department" });
+Employee.belongsTo(Designation, { foreignKey: "designationId", as: "designation" });
 module.exports = Employee;
