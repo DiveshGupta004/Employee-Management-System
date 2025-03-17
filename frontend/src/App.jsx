@@ -6,6 +6,12 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./routes/protectedRoute";
 import Dashboard from "./pages/Dashboard";
+import EmployeeTable from "./pages/EmployeeTable";
+import LeaveApproval from "./pages/LeaveApproval";
+import AttendancePage from "./pages/Attendance"; // ✅ Import AttendancePage
+import TopBar from "./components/Topbar";
+import Sidebar from "./components/Sidebar";
+
 import NavBar from "./components/CompleteNavbar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
 import Addfields from './pages/Addfields';
@@ -36,6 +42,9 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmpoloyeeTable />} />
             <Route path="/addfields" element={<Addfields />} />
+            <Route path="/employee-table" element={<EmployeeTable />} />
+            <Route path="/leave-approval" element={<LeaveApproval />} />
+            <Route path="/attendance" element={<AttendancePage />} /> {/* ✅ Added Attendance Page Route */}
           </Route>
         </Route>
       </Routes>
