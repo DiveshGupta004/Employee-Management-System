@@ -30,12 +30,18 @@ const login = async (req, res) => {
             { expiresIn: "1h" }
         );
 
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+            sameSite: "Strict", // Prevent CSRF attacks
+            maxAge: 3600000 // 1 hour in milliseconds
+        });
+
         res.json({ message: "Login successful", token });
     } catch (error) {
         res.status(500).json({ error: "Login failed", details: error.message });
     }
 };
-
 const createEmployee = async (req, res) => {
     try {
         // Destructure the relevant fields from req.body
