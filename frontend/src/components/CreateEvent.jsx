@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const CreateEvent = () => {
+  const location = useLocation();
+  const selectedDate = location.state?.selectedDate || "";
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    event_date: "",
+    event_date: selectedDate,
     location: "",
     event_type: "Conference",
     target_audience: "HR",
@@ -12,6 +16,12 @@ const CreateEvent = () => {
     reminder_time: "",
     calendar_integration: "Google",
   });
+
+  useEffect(() => {
+    if (selectedDate) {
+      setFormData((prevFormData) => ({ ...prevFormData, event_date: selectedDate }));
+    }
+  }, [selectedDate]);
 
   const eventTypes = ["Conference", "Meeting", "Workshop", "Seminar"];
   const departmentOptions = ["HR", "IT", "Marketing", "Finance"];
@@ -54,7 +64,6 @@ const CreateEvent = () => {
         reminder_time: "",
         calendar_integration: "Google",
       });
-
     } catch (error) {
       console.error("Error:", error);
       alert("Error creating event");
