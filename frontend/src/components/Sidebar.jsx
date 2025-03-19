@@ -6,7 +6,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-300 ease-in-out z-50 flex flex-col justify-between ${
+      className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-500 ease-in-out z-50 flex flex-col justify-between ${
         isSidebarOpen ? "w-64" : "w-0"
       } overflow-hidden`}
       onMouseEnter={() => setIsSidebarOpen(true)}
