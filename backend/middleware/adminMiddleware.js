@@ -29,4 +29,6 @@ const authenticateAdmin = (req, res, next) => {
     }
 };
 
+
+
 module.exports = { authenticateAdmin }; // ✅ Correct export
