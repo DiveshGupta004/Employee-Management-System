@@ -107,6 +107,36 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </span>
             </Link>
           </li>
+          <li>
+            <Link
+              to="/events"
+              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <span className="text-xl">👨‍💼</span>
+              <span
+                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                Create Event
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/showevents"
+              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <span className="text-xl">👨‍💼</span>
+              <span
+                className={`ml-4 whitespace-nowrap overflow-hidden transition-opacity duration-200 ${
+                  isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                Show Event
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
 
