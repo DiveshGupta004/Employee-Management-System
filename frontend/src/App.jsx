@@ -32,7 +32,7 @@ const DashboardLayout = () => {
 function App() {
   return (
     <Router>
-      {/* <AuthCheck/> */}
+      <AuthCheck/>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
