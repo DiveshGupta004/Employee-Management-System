@@ -3,17 +3,7 @@ const CreateEvent = require("../models/createEvent");
 // Create a new event
 const createEvent = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      event_date,
-      location,
-      event_type,
-      target_audience,
-      rsvp_deadline,
-      reminder_time,
-      calendar_integration,
-    } = req.body;
+    const { title, description, event_date, location, event_type, target_audience } = req.body;
 
     const newEvent = await CreateEvent.create({
       title,
@@ -22,9 +12,6 @@ const createEvent = async (req, res) => {
       location,
       event_type,
       target_audience,
-      rsvp_deadline,
-      reminder_time,
-      calendar_integration,
     });
 
     res.status(201).json({ message: "Event created successfully", event: newEvent });

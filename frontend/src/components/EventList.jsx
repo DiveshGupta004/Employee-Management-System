@@ -1,33 +1,58 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/events/all"); // Adjust the API URL if needed
-        if (!response.ok) {
-          throw new Error("Failed to fetch events");
-        }
-        const data = await response.json();
-        setEvents(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
   }, []);
 
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/events", { withCredentials: true });
+      setEvents(response.data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openModal = (event = null) => {
+    setCurrentEvent(event);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setCurrentEvent(null);
+  };
+
+  const handleDelete = async (eventId) => {
+    try {
+      await axios.delete(`http://localhost:5000/events/${eventId}`);
+      fetchEvents();
+    } catch (err) {
+      console.error("Error deleting event:", err);
+    }
+  };
+
   return (
     <div className="p-6 max-w-4xl mx-auto bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-3xl font-bold mb-4 text-center">📅 Created Events</h2>
-
+      <div className="flex justify-between mb-4">
+        <h2 className="text-2xl font-bold">📅 Event List</h2>
+        <button
+          onClick={() => openModal()}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Add Event
+        </button>
+      </div>
       {loading ? (
         <p className="text-center text-gray-600">Loading events...</p>
       ) : error ? (
@@ -40,7 +65,7 @@ const EventList = () => {
                 <th className="p-3">Title</th>
                 <th className="p-3">Date</th>
                 <th className="p-3">Location</th>
-                <th className="p-3">Event Type</th>
+                <th className="p-3">Type</th>
                 <th className="p-3">Actions</th>
               </tr>
             </thead>
@@ -51,18 +76,38 @@ const EventList = () => {
                   <td className="p-3">{new Date(event.event_date).toDateString()}</td>
                   <td className="p-3">{event.location}</td>
                   <td className="p-3">{event.event_type}</td>
-                  <td className="p-3">
+                  <td className="p-3 space-x-2">
                     <button
                       className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-                      onClick={() => alert(`View details for ${event.title}`)}
+                      onClick={() => openModal(event)}
                     >
-                      View Details
+                      Edit
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                      onClick={() => handleDelete(event.event_id)}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {modalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-30">
+          <div className="bg-white p-5 rounded-md shadow-lg w-80">
+            <h3 className="text-lg font-medium mb-4">{currentEvent ? "Edit Event" : "Add Event"}</h3>
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              ✖
+            </button>
+            {/* Form for adding or editing an event goes here */}
+          </div>
         </div>
       )}
     </div>

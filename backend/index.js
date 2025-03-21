@@ -13,6 +13,7 @@ const designationRoutes = require("./routes/designationRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const leaveRoutes = require("./routes/leaveRoutes"); // ✅ Import Leave Routes
 const eventRoutes = require("./routes/eventRoutes");
+const typeEventRoutes = require('./routes/typeEventRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/designations", designationRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/leaves", leaveRoutes); // ✅ Add Leave Routes
 app.use("/events", eventRoutes);
+app.use('/api/event-types', typeEventRoutes);
 
 // ✅ Sync Database
 sequelize
