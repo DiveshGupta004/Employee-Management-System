@@ -6,6 +6,7 @@ const Admin = require("./Admin");
 const Employee = require("./Employee");
 const Department = require("./Department");
 const Designation = require("./Designation");
+const TypeEvent = require('./TypeEvent');
 
 // Sync models
 sequelize
@@ -20,4 +21,5 @@ module.exports = {
   Employee,
   Department,
   Designation,
+  TypeEvent,
 };
