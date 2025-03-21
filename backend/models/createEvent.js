@@ -32,18 +32,6 @@ const CreateEvent = sequelize.define(
       type: DataTypes.JSON, // Storing array of department names
       allowNull: false,
     },
-    rsvp_deadline: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    reminder_time: {
-      type: DataTypes.STRING, // Example: "1 day before"
-      allowNull: false,
-    },
-    calendar_integration: {
-      type: DataTypes.STRING, // Example: "Google, Outlook"
-      allowNull: true,
-    },
   },
   {
     tableName: "events",

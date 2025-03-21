@@ -13,7 +13,6 @@ import TopBar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
 import EventCalendar from "./components/EventCalendar";
 import NavBar from "./components/CompleteNavbar";
-// import EventCalendar from "./components/EventCalendar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
 import Addfields from './pages/Addfields';
 import AuthCheck from "./components/AuthCheck";
@@ -25,7 +24,7 @@ const DashboardLayout = () => {
     <div>
       <NavBar />
       <Outlet />
-      <EventCalendar />  
+      {/* <EventCalendar />   */}
     </div>
   );
 };
