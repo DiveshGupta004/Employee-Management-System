@@ -47,7 +47,7 @@ const EventCalendar = () => {
   // Update current date when the view changes
   const updateCurrentDate = () => {
     if (calendarRef.current) {
-      const newDate = calendarRef.current.getApi().view.currentStart;
+      const newDate = calendarRef.current.getApi().getDate();
       setCurrentDate(dayjs(newDate).format("DD MMMM YYYY"));
     }
   };
@@ -81,7 +81,9 @@ const EventCalendar = () => {
         break;
     }
 
-    updateCurrentDate();
+    setTimeout(() => {
+      updateCurrentDate();
+    }, 50);
   };
 
   const handleDateClick = (info) => {
