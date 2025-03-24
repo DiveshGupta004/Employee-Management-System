@@ -10,6 +10,7 @@ const EventList = () => {
   const [currentEvent, setCurrentEvent] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredEvents, setFilteredEvents] = useState([]);
+  const [filterType, setFilterType] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,10 +18,14 @@ const EventList = () => {
   }, []);
 
   useEffect(() => {
+    applyFilters();
+  }, [filterType, events]);
+
+  useEffect(() => {
     if (searchQuery.trim() === "") {
-      setFilteredEvents(events);
+      applyFilters();
     }
-  }, [searchQuery, events]);
+  }, [searchQuery]);
 
   const fetchEvents = async () => {
     try {
@@ -32,6 +37,38 @@ const EventList = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = () => {
+    let updatedEvents = events;
+    
+    const now = new Date();
+    if (filterType === "upcoming") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+    } else if (filterType === "past") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+    }
+    
+    setFilteredEvents(updatedEvents);
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim() === "") {
+      applyFilters();
+      return;
+    }
+    let updatedEvents = events.filter(event => 
+      event.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    const now = new Date();
+    if (filterType === "upcoming") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+    } else if (filterType === "past") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+    }
+    
+    setFilteredEvents(updatedEvents);
   };
 
   const openModal = (event = null) => {
@@ -53,16 +90,6 @@ const EventList = () => {
     }
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      setFilteredEvents(events);
-    } else {
-      setFilteredEvents(events.filter(event => 
-        event.title.toLowerCase().includes(searchQuery.toLowerCase())
-      ));
-    }
-  };
-
   return (
     <div className="p-6 w-full mx-auto bg-gray-900 text-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
@@ -76,11 +103,19 @@ const EventList = () => {
             placeholder="🔍 Search Event..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white"
           />
         </div>
-        <button onClick={handleSearch} className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Search</button>
-        <select className="p-3 bg-gray-800 border border-gray-600 rounded-lg text-white">
+        <button 
+          onClick={handleSearch} 
+          className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+        >Search</button>
+        <select 
+          className="p-3 bg-gray-800 border border-gray-600 rounded-lg text-white"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
           <option value="all">All</option>
           <option value="upcoming">Upcoming</option>
           <option value="past">Past</option>
@@ -122,20 +157,6 @@ const EventList = () => {
               )}
             </tbody>
           </table>
-        </div>
-      )}
-      {modalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-30">
-          <div className="bg-white p-5 rounded-md shadow-lg w-80">
-            <h3 className="text-lg font-medium mb-4">{currentEvent ? "Edit Event" : "Add Event"}</h3>
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-            >
-              ✖
-            </button>
-            {/* Form for adding or editing an event goes here */}
-          </div>
         </div>
       )}
     </div>
