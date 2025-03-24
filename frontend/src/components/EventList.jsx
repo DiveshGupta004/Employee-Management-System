@@ -8,16 +8,25 @@ const EventList = () => {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredEvents, setFilteredEvents] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchEvents();
   }, []);
 
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredEvents(events);
+    }
+  }, [searchQuery, events]);
+
   const fetchEvents = async () => {
     try {
       const response = await axios.get("http://localhost:5000/events", { withCredentials: true });
       setEvents(response.data);
+      setFilteredEvents(response.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -44,6 +53,16 @@ const EventList = () => {
     }
   };
 
+  const handleSearch = () => {
+    if (searchQuery.trim() === "") {
+      setFilteredEvents(events);
+    } else {
+      setFilteredEvents(events.filter(event => 
+        event.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+    }
+  };
+
   return (
     <div className="p-6 w-full mx-auto bg-gray-900 text-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
@@ -55,9 +74,12 @@ const EventList = () => {
           <input
             type="text"
             placeholder="🔍 Search Event..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white"
           />
         </div>
+        <button onClick={handleSearch} className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Search</button>
         <select className="p-3 bg-gray-800 border border-gray-600 rounded-lg text-white">
           <option value="all">All</option>
           <option value="upcoming">Upcoming</option>
@@ -82,8 +104,8 @@ const EventList = () => {
               </tr>
             </thead>
             <tbody>
-              {events.length > 0 ? (
-                events.map((event) => (
+              {filteredEvents.length > 0 ? (
+                filteredEvents.map((event) => (
                   <tr key={event.event_id} className="border-b border-gray-700 text-white">
                     <td className="p-3">{event.title}</td>
                     <td className="p-3">{event.description}</td>
