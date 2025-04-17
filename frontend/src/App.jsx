@@ -11,17 +11,20 @@ import LeaveApproval from "./pages/LeaveApproval";
 import AttendancePage from "./pages/Attendance"; // ✅ Import AttendancePage
 import TopBar from "./components/Topbar";
 import Sidebar from "./components/Sidebar";
-
+import EventCalendar from "./components/EventCalendar";
 import NavBar from "./components/CompleteNavbar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
 import Addfields from './pages/Addfields';
 import AuthCheck from "./components/AuthCheck";
+import Events from "./pages/Events";
+import ShowEvents from "./pages/ShowEvents";
 // Layout component that includes NavBar and an Outlet for nested routes
 const DashboardLayout = () => {
   return (
     <div>
       <NavBar />
-      <Outlet />  
+      <Outlet />
+      {/* <EventCalendar />   */}
     </div>
   );
 };
@@ -45,6 +48,8 @@ function App() {
             <Route path="/employee-table" element={<EmployeeTable />} />
             <Route path="/leave-approval" element={<LeaveApproval />} />
             <Route path="/attendance" element={<AttendancePage />} /> {/* ✅ Added Attendance Page Route */}
+            <Route path="/events" element={<Events />} />
+            <Route path="/showevents" element={<ShowEvents />} />
           </Route>
         </Route>
       </Routes>
