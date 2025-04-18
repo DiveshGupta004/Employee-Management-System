@@ -1,219 +1,229 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import dayjs from "dayjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
-const CreateEvent = () => {
-  const location = useLocation();
-  const selectedDate = location.state?.selectedDate || "";
-
+const EventCalendar = () => {
+  const calendarRef = useRef(null);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentDate, setCurrentDate] = useState(dayjs().format("DD MMMM YYYY"));
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    event_date: selectedDate,
+    event_date: "",
     location: "",
     event_type: "",
-    target_audience: [], // ✅ Dynamically populated from backend
+    target_audience: [],
   });
-
-  const [events, setEvents] = useState([]);
-  const [departmentOptions, setDepartmentOptions] = useState([]); // ✅ Define state for departments
   const [eventTypes, setEventTypes] = useState([]);
-  const [error, setError] = useState(null);
+  const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
-    if (selectedDate) {
-      setFormData((prev) => ({ ...prev, event_date: selectedDate }));
-    }
-  }, [selectedDate]);
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/events");
+        if (!response.ok) throw new Error("Failed to fetch events");
+        const data = await response.json();
+        const formatted = data.map((event) => ({
+          id: event.event_id,
+          title: event.title,
+          start: event.event_date,
+          location: event.location,
+        }));
+        setEvents(formatted);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // ✅ Fetch events from backend
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/events", { credentials: "include" });
-      if (!response.ok) throw new Error("Failed to fetch events");
+    const fetchDropdowns = async () => {
+      try {
+        const [eventTypeRes, deptRes] = await Promise.all([
+          fetch("http://localhost:5000/api/event-types", { credentials: "include" }),
+          fetch("http://localhost:5000/api/departments", { credentials: "include" }),
+        ]);
+        const eventTypesData = await eventTypeRes.json();
+        const departmentsData = await deptRes.json();
+        setEventTypes(eventTypesData);
+        setDepartments(departmentsData);
+      } catch (error) {
+        console.error("Dropdown fetch error:", error);
+      }
+    };
 
-      const data = await response.json();
-      setEvents(data);
-    } catch (err) {
-      console.error("Error fetching events:", err);
-      setError(err.message);
-    }
-  };
-
-  // ✅ Fetch departments from backend
-  const fetchDepartments = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/departments", { credentials: "include" });
-      if (!response.ok) throw new Error(`Failed to fetch departments: ${response.status}`);
-
-      const data = await response.json();
-      setDepartmentOptions(data);
-    } catch (err) {
-      console.error("Error fetching departments:", err);
-      setError(err.message);
-    }
-  };
-
-  const fetchEventTypes = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/event-types", { credentials: "include" });
-      if (!response.ok) throw new Error("Failed to fetch event types");
-      const data = await response.json();
-      setEventTypes(data);
-    } catch (err) {
-      console.error("Error fetching event types:", err);
-      setError(err.message);
-    }
-  };
-
-  useEffect(() => {
     fetchEvents();
-    fetchDepartments();
-    fetchEventTypes();
+    fetchDropdowns();
   }, []);
 
+  const updateCurrentDate = () => {
+    if (calendarRef.current) {
+      const today = calendarRef.current.getApi().getDate();
+      setCurrentDate(dayjs(today).format("DD MMMM YYYY"));
+    }
+  };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleNavigation = (action) => {
+    const calendarApi = calendarRef.current?.getApi();
+    if (!calendarApi) return;
+    switch (action) {
+      case "prev-year": calendarApi.prevYear(); break;
+      case "prev-month": calendarApi.prev(); break;
+      case "next-month": calendarApi.next(); break;
+      case "next-year": calendarApi.nextYear(); break;
+      case "today": calendarApi.today(); break;
+      default: break;
+    }
+    updateCurrentDate();
+  };
+
+  const handleDateClick = (info) => {
+    setSelectedDate(info.dateStr);
+    setFormData((prev) => ({ ...prev, event_date: info.dateStr }));
+    setDialogOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form:", formData);
-
     try {
-      const response = await fetch("http://localhost:5000/events", {
+      const res = await fetch("http://localhost:5000/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ✅ Include credentials
+        credentials: "include",
         body: JSON.stringify(formData),
       });
-
-      if (!response.ok) throw new Error("Failed to create event");
-
-      const data = await response.json();
-      alert("Event Created Successfully!");
-      console.log("Response:", data);
-
-      setFormData({
-        title: "",
-        description: "",
-        event_date: "",
-        location: "",
-        event_type: "",
-        target_audience: [],
-      });
-
-      setEvents([...events, data.event]);
+      if (!res.ok) throw new Error("Failed to create event");
+      const newEvent = await res.json();
+      setDialogOpen(false);
+      setFormData({ title: "", description: "", event_date: "", location: "", event_type: "", target_audience: [] });
+      setEvents([...events, { id: newEvent.event.event_id, title: newEvent.event.title, start: newEvent.event.event_date }]);
     } catch (err) {
-      console.error("Error creating event:", err);
-      alert("Error creating event");
+      console.error(err);
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">Create Event</h2>
-      {error && <p className="text-red-500 text-center">{error}</p>}
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700 font-semibold">Event Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-            placeholder="Enter event title"
-          />
+    <div className="p-4 w-full bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <h2 className="text-xl font-semibold text-gray-800">📅 Event Calendar</h2>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => handleNavigation("prev-year")}>«</Button>
+          <Button variant="outline" onClick={() => handleNavigation("prev-month")}>‹</Button>
+          <Button variant="outline" onClick={() => handleNavigation("today")} className="bg-green-500 hover:bg-green-600 text-white">Today</Button>
+          <Button variant="outline" onClick={() => handleNavigation("next-month")}>›</Button>
+          <Button variant="outline" onClick={() => handleNavigation("next-year")}>»</Button>
         </div>
+      </div>
 
-        <div>
-          <label className="block text-gray-700 font-semibold">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows="3"
-            className="w-full p-2 border rounded-lg"
-            placeholder="Enter event description"
-          />
-        </div>
+      <div className="text-sm text-gray-600 mb-2 font-medium">Current view: {currentDate}</div>
 
-        <div>
-          <label className="block text-gray-700 font-semibold">Event Date</label>
-          <input
-            type="date"
-            name="event_date"
-            value={formData.event_date}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700 font-semibold">Location</label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-            placeholder="Enter location"
-          />
-        </div>
-
-        <div>
-          <label className="block text-gray-700 font-semibold">Event Type</label>
-          <select
-            name="event_type"
-            value={formData.event_type}
-            onChange={handleChange}
-            className="w-full p-2 border rounded-lg"
-          >
-            <option value="" disabled>Select an event type</option>
-            {eventTypes.length > 0 ? (
-              eventTypes.map((type) => (
-                <option key={type.id} value={type.id}>{type.name}</option>
-              ))
-            ) : (
-              <option disabled>Loading event types...</option>
+      <div className="rounded-md overflow-hidden">
+        {loading ? (
+          <p className="text-center text-gray-500 py-6">Loading events...</p>
+        ) : error ? (
+          <p className="text-center text-red-500 py-6">Error: {error}</p>
+        ) : (
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={false}
+            events={events}
+            height={500}
+            eventContent={({ event }) => (
+              <Badge variant="default" className="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 border border-green-200">
+                {event.title}
+              </Badge>
             )}
-          </select>
-        </div>
+            className="rounded-md"
+            datesSet={updateCurrentDate}
+            dateClick={handleDateClick}
+          />
+        )}
+      </div>
 
-        <div>
-          <label className="block text-gray-700 font-semibold">Target Audience (Department)</label>
-          <select
-            name="target_audience"
-            value={formData.target_audience[0] || ""}
-            onChange={(e) => setFormData({ ...formData, target_audience: [e.target.value] })}
-            className="w-full p-2 border rounded-lg"
-          >
-            <option value="" disabled>Select a department</option>
-            {departmentOptions.length > 0 ? (
-              departmentOptions.map((dept) => (
-                <option key={dept.id} value={dept.name}>{dept.name}</option>
-              ))
-            ) : (
-              <option disabled>Loading departments...</option>
-            )}
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          Create Event
-        </button>
-      </form>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Event for {selectedDate}</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4 mt-2" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="title"
+              placeholder="Event Title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            <input
+              type="text"
+              name="location"
+              placeholder="Location"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
+            <Select onValueChange={(value) => setFormData({ ...formData, event_type: value })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Event Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {eventTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={(value) => setFormData({ ...formData, target_audience: [value] })}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Department" />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button type="submit">Save</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default CreateEvent;
+export default EventCalendar;

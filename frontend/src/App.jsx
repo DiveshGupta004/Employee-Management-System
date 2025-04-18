@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import "./App.css";
+
 import Login from "./pages/LoginPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -10,46 +11,50 @@ import EmployeeTable from "./pages/EmployeeTable";
 import LeaveApproval from "./pages/LeaveApproval";
 import AttendancePage from "./pages/Attendance"; // ✅ Import AttendancePage
 import TopBar from "./components/Topbar";
-import Sidebar from "./components/Sidebar";
 import EventCalendar from "./components/EventCalendar";
-import NavBar from "./components/CompleteNavbar";
+import { SidebarDemo } from "./components/Navbar";
 import EmpoloyeeTable from "./pages/EmployeeTable";
 import Addfields from './pages/Addfields';
 import AuthCheck from "./components/AuthCheck";
 import Events from "./pages/Events";
 import ShowEvents from "./pages/ShowEvents";
-// Layout component that includes NavBar and an Outlet for nested routes
-const DashboardLayout = () => {
-  return (
-    <div>
-      <NavBar />
+
+// ✅ Toaster import
+import { Toaster } from "@/components/ui/sonner";
+
+// Layout component that includes Sidebar + nested route content
+const DashboardLayout = () => (
+  <>
+    <SidebarDemo />
+    <div className="ml-64 p-4"> {/* Offset for sidebar */}
       <Outlet />
-      {/* <EventCalendar />   */}
     </div>
-  );
-};
+  </>
+);
 
 function App() {
   return (
     <Router>
-      <AuthCheck/>
+      <AuthCheck />
+      {/* ✅ Place Toaster here globally */}
+      <Toaster position="top-right" richColors />
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Protected Routes with Dashboard Layout */}
+        {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-table" element={<EmpoloyeeTable />} />
             <Route path="/addfields" element={<Addfields />} />
-            <Route path="/employee-table" element={<EmployeeTable />} />
             <Route path="/leave-approval" element={<LeaveApproval />} />
-            <Route path="/attendance" element={<AttendancePage />} /> {/* ✅ Added Attendance Page Route */}
-            <Route path="/events" element={<Events />} />
-            <Route path="/showevents" element={<ShowEvents />} />
+            <Route path="/attendance" element={<AttendancePage />} />
+            <Route path="/create-events" element={<Events />} />
+            <Route path="/events" element={<ShowEvents />} />
           </Route>
         </Route>
       </Routes>

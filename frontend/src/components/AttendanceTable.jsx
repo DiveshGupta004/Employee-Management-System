@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // ✅ Import Framer Motion
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableCaption,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 const AttendanceTable = () => {
   const [attendanceRecords, setAttendanceRecords] = useState([]);
@@ -12,7 +29,6 @@ const AttendanceTable = () => {
     fetchAttendanceRecords();
   }, []);
 
-  // Fetch Attendance Records
   const fetchAttendanceRecords = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/attendance", {
@@ -25,14 +41,12 @@ const AttendanceTable = () => {
     }
   };
 
-  // Filter & search logic
   const filteredRecords = attendanceRecords.filter(
     (record) =>
       (statusFilter === "All" || record.status === statusFilter) &&
       record.Employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
@@ -40,104 +54,73 @@ const AttendanceTable = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <motion.div
-      className="bg-gray-800 text-white p-6 rounded-lg shadow-md border border-gray-700"
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-    >
-      {/* Header */}
+    <div className="p-6">
       <h2 className="text-2xl font-semibold mb-4">Employee Attendance</h2>
 
-      {/* Search & Filter Section */}
       <div className="flex flex-wrap items-center gap-4 mb-4">
-        <input
+        <Input
           type="text"
-          placeholder="🔍 Search Employee..."
-          className="p-2 border border-gray-600 rounded-md text-sm w-full md:w-1/3 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition"
+          placeholder="Search Employee..."
+          className="w-full md:w-1/3"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <select
-          className="p-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="All">All</option>
-          <option value="Present">Present</option>
-          <option value="Absent">Absent</option>
-          <option value="Late">Late</option>
-        </select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="Present">Present</SelectItem>
+            <SelectItem value="Absent">Absent</SelectItem>
+            <SelectItem value="Late">Late</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Attendance Records Table */}
-      <AnimatePresence>
-        <motion.div
-          className="overflow-x-auto rounded-lg border border-gray-700 bg-gray-900"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-        >
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-gray-700 text-white">
-              <tr>
-                {["Employee", "Check-in", "Check-out", "Status"].map((header) => (
-                  <th key={header} className="p-3 text-left border border-gray-600">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence>
-                {currentRecords.length > 0 ? (
-                  currentRecords.map((record, index) => (
-                    <motion.tr
-                      key={record.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className={`${
-                        index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
-                      } hover:bg-gray-600 transition-all duration-200`}
-                    >
-                      <td className="p-3 border border-gray-600">{record.Employee.name}</td>
-                      <td className="p-3 border border-gray-600">{record.checkInTime || "—"}</td>
-                      <td className="p-3 border border-gray-600">{record.checkOutTime || "—"}</td>
-                      <td className="p-3 border border-gray-600">
-                        <motion.span
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className={`px-2 py-1 rounded text-xs font-semibold ${
-                            record.status === "Present"
-                              ? "bg-green-700 text-green-200"
-                              : record.status === "Late"
-                              ? "bg-yellow-600 text-yellow-200"
-                              : "bg-red-700 text-red-200"
-                          }`}
-                        >
-                          {record.status}
-                        </motion.span>
-                      </td>
-                    </motion.tr>
-                  ))
-                ) : (
-                  <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <td colSpan="4" className="text-center p-4 text-gray-400">
-                      No attendance records found.
-                    </td>
-                  </motion.tr>
-                )}
-              </AnimatePresence>
-            </tbody>
-          </table>
-        </motion.div>
-      </AnimatePresence>
+      <Table>
+        <TableCaption>Attendance records</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Employee</TableHead>
+            <TableHead>Check-in</TableHead>
+            <TableHead>Check-out</TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {currentRecords.length > 0 ? (
+            currentRecords.map((record) => (
+              <TableRow key={record.id}>
+                <TableCell>{record.Employee.name}</TableCell>
+                <TableCell>{record.checkInTime || "—"}</TableCell>
+                <TableCell>{record.checkOutTime || "—"}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={
+                      record.status === "Present"
+                        ? "text-green-700 border-green-500"
+                        : record.status === "Late"
+                        ? "text-yellow-700 border-yellow-500"
+                        : "text-red-700 border-red-500"
+                    }
+                  >
+                    {record.status}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan="4" className="text-center text-gray-500">
+                No attendance records found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-      {/* Pagination */}
       <div className="flex justify-center mt-4">
         {Array.from({ length: Math.ceil(filteredRecords.length / recordsPerPage) }).map((_, index) => (
           <button
@@ -145,7 +128,7 @@ const AttendanceTable = () => {
             className={`px-3 py-1 mx-1 rounded text-sm font-semibold transition ${
               currentPage === index + 1
                 ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
             }`}
             onClick={() => paginate(index + 1)}
           >
@@ -153,7 +136,7 @@ const AttendanceTable = () => {
           </button>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
