@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-const { Admin} = require("../models"); // Import both Admin and User
+const { Admin, Employee } = require("../models"); // Import both Admin and User
 require("dotenv").config();
 
 if (!process.env.JWT_SECRET) {
@@ -49,48 +49,55 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const { username, password } = req.body;
-
-        if (!username || !password) {
-            return res.status(400).json({ error: "Username and password are required" });
-        }
-
-        // Fetch user from Admins table
-        const admin = await Admin.findOne({ where: { username } });
-
-        if (!admin) {
-            return res.status(400).json({ error: "Admin not found" });
-        }
-
-        // Verify password
-        const isValid = await bcrypt.compare(password, admin.password);
-        if (!isValid) {
-            return res.status(401).json({ error: "Invalid credentials" });
-        }
-
-        // Generate JWT Token with isAdmin set to true
-        const token = jwt.sign(
-            { id: admin.id, username: admin.username, isAdmin: true }, // Always set isAdmin to true
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
-        // Set token in HTTP-only cookie
-        res.cookie("auth_token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
-            maxAge: 3600000 // 1 hour
-        });
-
-        res.json({ message: "Login successful", isAdmin: true });
-
-    } catch (error) {
-        console.error("❌ Login Error:", error);
-        res.status(500).json({ error: "Login failed", details: error.message });
+      const { identifier, password } = req.body; // identifier can be username or email
+      if (!identifier || !password) {
+        return res.status(400).json({ error: "Username/Email and password are required" });
+      }
+  
+      // First, try Admin login (assumes Admin logs in with username)
+      let user = await Admin.findOne({ where: { username: identifier } });
+      let isAdmin = true;
+  
+      if (!user) {
+        // Try Employee login (assumes Employee logs in with email)
+        user = await Employee.findOne({ where: { email: identifier } });
+        isAdmin = false;
+      }
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+  
+      // ✅ Generate token
+      const token = jwt.sign(
+        {
+          id: user.id,
+          username: user.username || user.name,
+          email: user.email,
+          isAdmin,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+  
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
+  
+      res.json({ message: "Login successful", isAdmin });
+    } catch (err) {
+      console.error("Login Error:", err);
+      res.status(500).json({ error: "Login failed", details: err.message });
     }
-};
-
+  };
 // ✅ Forgot Password (by Email)
 exports.forgotPassword = async (req, res) => {
     try {

@@ -20,23 +20,38 @@ const Login = () => {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-        credentials: "include", // Ensure cookies are sent with the request
+        body: JSON.stringify({ identifier: username, password }),
+        credentials: "include", // Send cookie
       });
   
-      const data = await response.json();
+      const result = await response.json();
   
-      // Simulate a delay of 2 seconds before processing login
-      setTimeout(() => {
+      setTimeout(async () => {
         setLoading(false);
   
         if (response.ok) {
-          localStorage.setItem("token", data.token);
-          navigate("/dashboard"); // ✅ Redirect after login
+          // ✅ Use /validate to determine role
+          try {
+            const validateRes = await fetch("http://localhost:5000/api/auth/validate", {
+              method: "GET",
+              credentials: "include"
+            });
+            const validateData = await validateRes.json();
+  
+            if (validateData.isAdmin) {
+              navigate("/dashboard");
+            } else {
+              navigate("/employee/dashboard");
+            }
+          } catch {
+            setError("Failed to verify user role.");
+          }
+  
         } else {
-          setError(data.error || "Invalid credentials!");
+          setError(result.error || "Invalid credentials!");
         }
-      }, 1000); // ⏳ Delay of 2 seconds
+      }, 1000);
+  
     } catch (error) {
       console.error("Login error:", error);
       setError("Something went wrong. Try again!");
