@@ -1,0 +1,1 @@
+update the auth check component so that we can reroute to forgot passowd and other public routes

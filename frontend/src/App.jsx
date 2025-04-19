@@ -57,7 +57,7 @@ function App() {
           <Route element={<RoleProtectedRoute allowedFor="employee" />}>
             <Route element={<DashboardLayout />}>
               <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-              <Route path="/employee/events" element={<EmployeeDashboard />} />
+              <Route path="/employee/events" element={<ShowEvents/>} />
             </Route>
           </Route>
         </Route>
