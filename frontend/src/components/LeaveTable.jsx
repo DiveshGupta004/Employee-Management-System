@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { FiCheck, FiX } from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const LeaveRequestsAdmin = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
-  const requestsPerPage = 10;
 
   useEffect(() => {
     fetchLeaveRequests();
@@ -40,8 +56,8 @@ const LeaveRequestsAdmin = () => {
         throw new Error(errorData.message || "Failed to update leave status");
       }
 
-      setLeaveRequests((prevRequests) =>
-        prevRequests.map((req) =>
+      setLeaveRequests((prev) =>
+        prev.map((req) =>
           req.id === id ? { ...req, status: newStatus } : req
         )
       );
@@ -56,117 +72,98 @@ const LeaveRequestsAdmin = () => {
       request.Employee.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const indexOfLastRequest = currentPage * requestsPerPage;
-  const indexOfFirstRequest = indexOfLastRequest - requestsPerPage;
-  const currentRequests = filteredRequests.slice(indexOfFirstRequest, indexOfLastRequest);
-
   return (
-    <motion.div
-      className="bg-gray-800 text-white p-6 rounded-lg shadow-md border border-gray-700"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-    >
-      <h2 className="text-2xl font-semibold mb-4">Leave Requests</h2>
+    <div className="p-6">
+      <h2 className="text-2xl font-semibold mb-6">Leave Requests</h2>
 
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        <input
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <Input
           type="text"
-          placeholder="🔍 Search Employee..."
-          className="p-2 border border-gray-600 rounded-md text-sm w-full md:w-1/3 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition"
+          placeholder="Search Employee..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          className="md:w-1/3"
         />
-        <select
-          className="p-2 border border-gray-600 rounded-md text-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="All">All</option>
-          <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
-        </select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            {['All', 'Pending', 'Approved', 'Rejected'].map((status) => (
+              <SelectItem key={status} value={status}>{status}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Animated Table Wrapper */}
-      <AnimatePresence>
-        <motion.div
-          className="overflow-x-auto rounded-lg border border-gray-700 bg-gray-900"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-        >
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-gray-700 text-white">
-              <tr>
-                {["Employee", "Start Date", "End Date", "Reason", "Status", "Actions"].map((header) => (
-                  <th key={header} className="p-3 text-left border border-gray-600">
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentRequests.length > 0 ? (
-                currentRequests.map((request, index) => (
-                  <tr
-                    key={request.id}
-                    className={`${index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"} hover:bg-gray-600 transition`}
+      <Table>
+        <TableCaption>List of leave requests</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Employee</TableHead>
+            <TableHead>Start Date</TableHead>
+            <TableHead>End Date</TableHead>
+            <TableHead>Reason</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredRequests.length > 0 ? (
+            filteredRequests.map((req) => (
+              <TableRow key={req.id}>
+                <TableCell>{req.Employee.name}</TableCell>
+                <TableCell>{req.startDate}</TableCell>
+                <TableCell>{req.endDate}</TableCell>
+                <TableCell>{req.reason}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={
+                      req.status === "Approved"
+                        ? "bg-green-200 text-green-700"
+                        : req.status === "Rejected"
+                        ? "bg-red-200 text-red-700"
+                        : "bg-yellow-200 text-yellow-700"
+                    }
                   >
-                    <td className="p-3 border border-gray-600">{request.Employee.name}</td>
-                    <td className="p-3 border border-gray-600">{request.startDate}</td>
-                    <td className="p-3 border border-gray-600">{request.endDate}</td>
-                    <td className="p-3 border border-gray-600">{request.reason}</td>
-                    <td className="p-3 border border-gray-600">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          request.status === "Approved"
-                            ? "bg-green-700 text-green-200"
-                            : request.status === "Rejected"
-                            ? "bg-red-700 text-red-200"
-                            : "bg-yellow-600 text-yellow-200"
-                        }`}
+                    {req.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {req.status === "Pending" ? (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateLeaveStatus(req.id, "Approved")}
                       >
-                        {request.status}
-                      </span>
-                    </td>
-                    <td className="p-3 border border-gray-600">
-                      {request.status === "Pending" ? (
-                        <div className="space-x-2">
-                          <button
-                            className="text-green-400 hover:bg-green-700 px-2 py-1 rounded transition"
-                            onClick={() => updateLeaveStatus(request.id, "Approved")}
-                          >
-                            <FiCheck className="inline w-4 h-4" />
-                          </button>
-                          <button
-                            className="text-red-400 hover:bg-red-700 px-2 py-1 rounded transition"
-                            onClick={() => updateLeaveStatus(request.id, "Rejected")}
-                          >
-                            <FiX className="inline w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">Decision Made</span>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center p-4 text-gray-400">
-                    No leave requests found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </motion.div>
-      </AnimatePresence>
-    </motion.div>
+                        <FiCheck className="h-4 w-4 text-green-600" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateLeaveStatus(req.id, "Rejected")}
+                      >
+                        <FiX className="h-4 w-4 text-red-600" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">Decision Made</span>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-6">
+                No leave requests found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

@@ -8,6 +8,9 @@ router.post("/", eventController.createEvent); // POST /events
 // Get all events
 router.get("/", eventController.getAllEvents); // GET /events
 
+// Get upcoming events only
+router.get("/upcoming", eventController.getUpcomingEvents); // ✅ NEW: GET /events/upcoming
+
 // Get an event by ID
 router.get("/:id", eventController.getEventById); // GET /events/:id
 

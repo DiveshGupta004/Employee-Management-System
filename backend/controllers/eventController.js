@@ -1,4 +1,5 @@
 const CreateEvent = require("../models/createEvent");
+const { Op } = require("sequelize");
 
 // Create a new event
 const createEvent = async (req, res) => {
@@ -27,6 +28,26 @@ const getAllEvents = async (req, res) => {
     res.status(200).json(events);
   } catch (error) {
     res.status(500).json({ message: "Error fetching events", error: error.message });
+  }
+};
+
+// ✅ Get upcoming events
+const getUpcomingEvents = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const upcomingEvents = await CreateEvent.findAll({
+      where: {
+        event_date: {
+          [Op.gte]: today
+        }
+      },
+      order: [["event_date", "ASC"]],
+      limit: 5
+    });
+
+    res.status(200).json(upcomingEvents);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to get upcoming events", error: error.message });
   }
 };
 
@@ -81,6 +102,7 @@ const deleteEvent = async (req, res) => {
 module.exports = {
   createEvent,
   getAllEvents,
+  getUpcomingEvents,
   getEventById,
   updateEvent,
   deleteEvent,
