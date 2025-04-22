@@ -27,6 +27,7 @@ const DashboardLayout = () => (
 );
 
 function App() {
+  
   return (
     <Router>
       <AuthCheck />

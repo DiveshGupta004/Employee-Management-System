@@ -1,7 +1,7 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -26,6 +26,14 @@ export default function Login() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [])
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -55,7 +63,6 @@ export default function Login() {
         return
       }
 
-      // Role validation
       const validateRes = await fetch("http://localhost:5000/api/auth/validate", {
         method: "GET",
         credentials: "include",
@@ -77,11 +84,11 @@ export default function Login() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-black">
+      <div className="w-full max-w-md p-8 bg-white dark:bg-neutral-900 text-gray-900 dark:text-gray-200 rounded-xl shadow-md border border-gray-200 dark:border-gray-800">
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Login</h2>
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 dark:text-red-400 text-sm mb-4">{error}</p>}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -90,9 +97,9 @@ export default function Login() {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel className="text-gray-800 dark:text-gray-100">Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your username" {...field} />
+                    <Input className="bg-white dark:bg-neutral-800 dark:text-white" placeholder="Enter your username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,9 +111,9 @@ export default function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-gray-800 dark:text-gray-100">Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Enter your password" {...field} />
+                    <Input className="bg-white dark:bg-neutral-800 dark:text-white" type="password" placeholder="Enter your password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,7 +121,7 @@ export default function Login() {
             />
 
             <div className="flex justify-end">
-              <a href="/forgot-password" className="text-sm text-blue-500 hover:underline">
+              <a href="/forgot-password" className="text-sm text-blue-500 hover:underline dark:text-blue-400">
                 Forgot Password?
               </a>
             </div>
