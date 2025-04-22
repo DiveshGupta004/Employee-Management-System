@@ -114,7 +114,7 @@ function Dashboard() {
             <CardHeader>
               <CardTitle>Recent Activities</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-gray-700">
+            <CardContent className="space-y-2 text-sm text-gray-700 dark:text-white">
               {recentActivities.map((activity, index) => (
                 <p key={index} className="border-b pb-1 last:border-0">
                   {activity}
@@ -127,7 +127,7 @@ function Dashboard() {
             <CardHeader>
               <CardTitle>Upcoming Events</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-gray-700">
+            <CardContent className="space-y-2 text-sm text-gray-700 dark:text-white">
               {upcomingEvents.map((event) => (
                 <div key={event.event_id} className="border-b pb-1 last:border-0">
                   <div className="font-semibold">{event.title}</div>
