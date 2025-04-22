@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import axios from "axios";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import { Switch } from "@/components/ui/switch";
+import { IconMoonStars, IconSun } from "@tabler/icons-react";
 import {
   IconArrowLeft,
   IconBrandTabler,
@@ -22,6 +24,31 @@ export function SidebarDemo() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Load theme from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+      setDarkMode(true);
+    } else {
+      document.documentElement.classList.remove("dark");
+      setDarkMode(false);
+    }
+  }, []);
+
+  // Toggle dark mode
+  const toggleDarkMode = (checked) => {
+    setDarkMode(checked);
+    if (checked) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -104,7 +131,10 @@ export function SidebarDemo() {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+            
+
             {open ? <Logo /> : <LogoIcon />}
+
             <div className="mt-8 flex flex-col gap-2">
               {(isAdmin ? adminLinks : employeeLinks).map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
@@ -118,6 +148,18 @@ export function SidebarDemo() {
             </div>
           </div>
           <div>
+
+         
+     
+  {open ? (
+    <DarkModeSwitch darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+  ) : (
+    <DarkModeIcon darkMode={darkMode} />
+  )}
+
+
+           
+
             <SidebarLink
               link={{
                 label: isAdmin ? "Admin" : "Employee",
@@ -142,6 +184,29 @@ export function SidebarDemo() {
     </div>
   );
 }
+
+export const DarkModeSwitch = ({ darkMode, toggleDarkMode }) => (
+  <div className="flex items-center gap-2">
+    <div className="text-neutral-700 dark:text-neutral-200">
+    {darkMode ? (
+      <IconMoonStars size={20} stroke={1.5} />
+    ) : (
+      <IconSun size={20} stroke={1.5} />
+    )}
+  </div>
+    <Switch checked={darkMode} onCheckedChange={toggleDarkMode} />
+  </div>
+);
+
+export const DarkModeIcon = ({ darkMode }) => (
+  <div className="text-neutral-700 dark:text-neutral-200">
+    {darkMode ? (
+      <IconMoonStars size={20} stroke={1.5} />
+    ) : (
+      <IconSun size={20} stroke={1.5} />
+    )}
+  </div>
+);
 
 export const Logo = () => (
   <a href="#" className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black">
