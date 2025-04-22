@@ -15,7 +15,7 @@ const leaveRoutes = require("./routes/leaveRoutes"); // ✅ Import Leave Routes
 const leaveTypeRoutes = require("./routes/leaveTypeRoute"); // ✅ Import LeaveType Routes
 const eventRoutes = require("./routes/eventRoutes");
 const typeEventRoutes = require('./routes/typeEventRoutes');
-
+const attendanceRoutes = require("./routes/attendanceRoutes");
 const app = express();
 
 // ✅ Middleware
@@ -39,7 +39,7 @@ app.use("/api/leaves", leaveRoutes); // ✅ Add Leave Routes
 app.use("/api/leave-types", leaveTypeRoutes); // ✅ Add LeaveType Routes
 app.use("/events", eventRoutes);
 app.use('/api/event-types', typeEventRoutes);
-
+app.use("/api/attendance", attendanceRoutes);
 // ✅ Sync Database
 sequelize
   .authenticate()
