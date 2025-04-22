@@ -5,12 +5,11 @@ const Admin = sequelize.define("Admin", {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique:true
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
         validate: {
             isEmail: true, // Ensures the input is a valid email
         }

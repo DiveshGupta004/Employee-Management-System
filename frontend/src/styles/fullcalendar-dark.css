@@ -1,0 +1,41 @@
+/* True black dark mode theme for FullCalendar */
+
+html.dark .fc {
+    background-color: #000000 !important;
+    color: #e5e5e5 !important;
+  }
+  
+  html.dark .fc-col-header-cell {
+    background-color: #0d0d0d !important;
+    border: 1px solid #1a1a1a !important;
+    color: #ffffff !important;
+  }
+  
+  html.dark .fc-daygrid-day {
+    background-color: #000000 !important;
+    border: 1px solid #1a1a1a !important;
+  }
+  
+  html.dark .fc-day-today {
+    background-color: #111111 !important;
+  }
+  
+  html.dark .fc-daygrid-day-number {
+    color: #cccccc !important;
+  }
+  
+  html.dark .fc-event {
+    background-color: #0f766e !important;  /* teal-700 */
+    color: #ffffff !important;
+    border: none !important;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  
+  html.dark .fc-tooltip {
+    background: #0a0a0a !important;
+    color: #f3f4f6 !important;
+    border: 1px solid #333 !important;
+  }
+  
