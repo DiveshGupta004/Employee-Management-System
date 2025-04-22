@@ -97,18 +97,16 @@ exports.getAllAttendance = async (req, res) => {
 
 exports.markDailyStatus = async (req, res) => {
     const today = new Date().toISOString().split("T")[0];
-    const employees = await Employee.findAll({ where: { status: 'Active' } });
+    const employees = await Employee.findAll({ where: { status: "Active" } });
   
-    for (const emp of employees) {
+    const promises = employees.map(async (emp) => {
       const alreadyMarked = await Attendance.findOne({ where: { employeeId: emp.id, date: today } });
-      if (alreadyMarked) continue;
+      if (alreadyMarked) return;
   
       const approvedLeave = await LeaveRequest.findOne({
         where: {
           employeeId: emp.id,
           status: "Approved",
-          startDate: { [Op.lte]: today },
-          endDate: { [Op.gte]: today },
           [Op.and]: [
             { startDate: { [Op.lte]: today } },
             { endDate: { [Op.gte]: today } }
@@ -121,8 +119,9 @@ exports.markDailyStatus = async (req, res) => {
         date: today,
         status: approvedLeave ? "Leave" : "Absent"
       });
-    }
+    });
   
-    res.json({ message: "Daily attendance marked." });
+    await Promise.all(promises); // run in parallel
+    res.json({ message: "✅ Daily attendance marked for all." });
   };
   
