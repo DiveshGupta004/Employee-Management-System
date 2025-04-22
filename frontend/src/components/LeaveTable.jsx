@@ -103,6 +103,7 @@ const LeaveRequestsAdmin = () => {
             <TableHead>Employee</TableHead>
             <TableHead>Start Date</TableHead>
             <TableHead>End Date</TableHead>
+            <TableHead>Leave Type</TableHead>
             <TableHead>Reason</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
@@ -115,6 +116,7 @@ const LeaveRequestsAdmin = () => {
                 <TableCell>{req.Employee.name}</TableCell>
                 <TableCell>{req.startDate}</TableCell>
                 <TableCell>{req.endDate}</TableCell>
+                <TableCell>{req.LeaveType.type}</TableCell>
                 <TableCell>{req.reason}</TableCell>
                 <TableCell>
                   <Badge
