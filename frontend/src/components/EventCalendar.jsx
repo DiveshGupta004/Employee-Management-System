@@ -195,8 +195,8 @@ const EventCalendar = () => {
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs text-sm">
-                    <p className="font-semibold text-white">📍 {event.extendedProps.location}</p>
-                    <p className="text-gray-300">📝 {event.extendedProps.description}</p>
+                    <p className="font-semibold text-white dark:text-black">📍 {event.extendedProps.location}</p>
+                    <p className="text-gray-300 dark:text-black">📝 {event.extendedProps.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
