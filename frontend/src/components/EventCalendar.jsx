@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -45,6 +46,7 @@ const EventCalendar = () => {
   });
   const [eventTypes, setEventTypes] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -82,6 +84,19 @@ const EventCalendar = () => {
       }
     };
 
+    const fetchUserRole = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/auth/validate", {
+          withCredentials: true,
+        });
+        setIsAdmin(res.data.isAdmin);
+      } catch (err) {
+        console.error("Failed to fetch user role", err);
+        setIsAdmin(false);
+      }
+    };
+
+    fetchUserRole();
     fetchEvents();
     fetchDropdowns();
   }, []);
@@ -110,7 +125,9 @@ const EventCalendar = () => {
   const handleDateClick = (info) => {
     setSelectedDate(info.dateStr);
     setFormData((prev) => ({ ...prev, event_date: info.dateStr }));
-    setDialogOpen(true);
+    if (isAdmin) {
+      setDialogOpen(true);
+    }
   };
 
   const handleSubmit = async (e) => {
