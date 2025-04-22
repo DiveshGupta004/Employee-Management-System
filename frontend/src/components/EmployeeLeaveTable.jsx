@@ -61,6 +61,7 @@ const LeaveRequestsEmployee = () => {
           <TableRow>
             <TableHead>Start Date</TableHead>
             <TableHead>End Date</TableHead>
+            <TableHead>Leave Type</TableHead>
             <TableHead>Reason</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -71,6 +72,7 @@ const LeaveRequestsEmployee = () => {
               <TableRow key={req.id}>
                 <TableCell>{req.startDate}</TableCell>
                 <TableCell>{req.endDate}</TableCell>
+                <TableCell>{req.LeaveType.type}</TableCell>
                 <TableCell>{req.reason}</TableCell>
                 <TableCell>
                   <Badge

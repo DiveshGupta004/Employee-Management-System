@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config");
 const Employee = require("./Employee"); // Import Employee model
+const LeaveType = require("./LeaveType"); // Import LeaveType model
 
 const LeaveRequest = sequelize.define(
   "LeaveRequest",
@@ -16,9 +17,10 @@ const LeaveRequest = sequelize.define(
       references: { model: "Employee", key: "id" },
       onDelete: 'CASCADE'
     },
-    leaveType: {
-      type: DataTypes.STRING,
+    leaveTypeId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
+      references: { model: "LeaveType", key: "id" }, // Reference to LeaveType model
     },
     startDate: {
       type: DataTypes.DATEONLY,
@@ -43,8 +45,11 @@ const LeaveRequest = sequelize.define(
   }
 );
 
-// 🔹 Establish association with Employee
+// 🔹 Establish associations
 LeaveRequest.belongsTo(Employee, { foreignKey: "employeeId" });
+LeaveRequest.belongsTo(LeaveType, { foreignKey: "leaveTypeId" }); // Add this line to link to LeaveType
+
 Employee.hasMany(LeaveRequest, { foreignKey: "employeeId" });
+LeaveType.hasMany(LeaveRequest, { foreignKey: "leaveTypeId" }); // Add this line to link to LeaveType
 
 module.exports = LeaveRequest;

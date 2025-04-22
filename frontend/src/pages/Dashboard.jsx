@@ -44,7 +44,7 @@ function Dashboard() {
         const leaveRes = await axios.get("http://localhost:5000/api/leaves", { withCredentials: true });
         const empRes = await axios.get("http://localhost:5000/api/employees", { withCredentials: true });
 
-        const latestLeaves = leaveRes.data.slice(0, 5).map(l => `${l.Employee.name} applied for ${l.leaveType} leave`);
+        const latestLeaves = leaveRes.data.slice(0, 5).map(l => `${l.Employee.name} applied for ${l.LeaveType.type}`);
         const latestEmployees = empRes.data.slice(-5).map(e => `${e.name} was added as ${e.designation}`);
 
         setRecentActivities([...latestLeaves, ...latestEmployees]);

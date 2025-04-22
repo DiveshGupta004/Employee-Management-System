@@ -1,10 +1,10 @@
 const LeaveRequest = require("../models/LeaveRequest");
 const Employee = require("../models/Employee");
-
+const LeaveType = require("../models/LeaveType");
 // ✅ Submit a Leave Request (Employee)
 exports.requestLeave = async (req, res) => {
   try {
-    const { employeeId, leaveType, startDate, endDate, reason } = req.body;
+    const { employeeId, leaveTypeId, startDate, endDate, reason } = req.body;
 
     // Check if employee exists
     const employee = await Employee.findByPk(employeeId);
@@ -14,7 +14,7 @@ exports.requestLeave = async (req, res) => {
 
     const leave = await LeaveRequest.create({
       employeeId,
-      leaveType,
+      leaveTypeId,
       startDate,
       endDate,
       reason,
@@ -31,7 +31,10 @@ exports.requestLeave = async (req, res) => {
 exports.getAllLeaveRequests = async (req, res) => {
   try {
     const leaves = await LeaveRequest.findAll({
-      include: { model: Employee, attributes: ["name", "email"] }, // Join with Employee table
+      include: [
+        { model: Employee, attributes: ["name", "email"] },
+        { model: LeaveType, attributes: ["id", "type"] }
+      ],
       order: [["id", "DESC"]],
     });
 
@@ -40,6 +43,7 @@ exports.getAllLeaveRequests = async (req, res) => {
     res.status(500).json({ message: "Error fetching leave requests", error });
   }
 };
+
 
 // ✅ Get a Single Leave Request by ID (Admin)
 exports.getLeaveRequestById = async (req, res) => {
@@ -121,7 +125,7 @@ exports.deleteLeaveRequest = async (req, res) => {
 // ✅ Get Leave Requests by Employee ID (Employee)
 exports.getLeaveRequestsByEmployeeId = async (req, res) => {
   try {
-    const employeeId = req.employee.id; // from token, NOT req.params
+    const employeeId = req.employee.id; // from token
 
     const employee = await Employee.findByPk(employeeId);
     if (!employee) {
@@ -130,7 +134,10 @@ exports.getLeaveRequestsByEmployeeId = async (req, res) => {
 
     const leaveRequests = await LeaveRequest.findAll({
       where: { employeeId },
-      include: { model: Employee, attributes: ["name", "email"] },
+      include: [
+        { model: Employee, attributes: ["name", "email"] },
+        { model: LeaveType, attributes: ["id", "type"] }
+      ],
       order: [["id", "DESC"]],
     });
 
@@ -139,6 +146,7 @@ exports.getLeaveRequestsByEmployeeId = async (req, res) => {
     res.status(500).json({ message: "Error fetching leave requests", error });
   }
 };
+
 
 
 
