@@ -49,6 +49,8 @@ const EventList = () => {
   const [eventTypes, setEventTypes] = useState([]);
   const [departmentOptions, setDepartmentOptions] = useState([]);
   const [date, setDate] = useState();
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -62,7 +64,20 @@ const EventList = () => {
     fetchEvents();
     fetchEventTypes();
     fetchDepartments();
+    fetchUserRole();
   }, []);
+
+  const fetchUserRole = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/validate", {
+        withCredentials: true,
+      });
+      setIsAdmin(res.data.isAdmin);
+    } catch (err) {
+      console.error("Failed to fetch user role", err);
+      setIsAdmin(false);
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -161,94 +176,97 @@ const EventList = () => {
     <div className="p-6">
       <div className="flex justify-between mb-6">
         <h2 className="text-2xl font-semibold">Event List</h2>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => openDialog()}>Add Event</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{currentEvent ? "Edit Event" : "Add Event"}</DialogTitle>
-              <DialogDescription>
-                {currentEvent ? "Update event details." : "Fill in the details to add a new event."}
-              </DialogDescription>
-            </DialogHeader>
-            <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-              <input
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Event Title"
-                required
-                className="w-full px-4 py-2 border rounded-md text-sm"
-              />
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows="3"
-                placeholder="Description"
-                className="w-full px-4 py-2 border rounded-md text-sm"
-              />
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <input
-                name="location"
-                type="text"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="Location"
-                required
-                className="w-full px-4 py-2 border rounded-md text-sm"
-              />
-              <Select
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, event_type: value }))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select event type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {eventTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                onValueChange={(value) => setFormData((prev) => ({ ...prev, target_audience: [value] }))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select department" />
-                </SelectTrigger>
-                <SelectContent>
-                  {departmentOptions.map((dept) => (
-                    <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
-                <Button type="submit">Save</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+
+        {isAdmin && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => openDialog()}>Add Event</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{currentEvent ? "Edit Event" : "Add Event"}</DialogTitle>
+                <DialogDescription>
+                  {currentEvent ? "Update event details." : "Fill in the details to add a new event."}
+                </DialogDescription>
+              </DialogHeader>
+              <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
+                <input
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Event Title"
+                  required
+                  className="w-full px-4 py-2 border rounded-md text-sm"
+                />
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows="3"
+                  placeholder="Description"
+                  className="w-full px-4 py-2 border rounded-md text-sm"
+                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <input
+                  name="location"
+                  type="text"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Location"
+                  required
+                  className="w-full px-4 py-2 border rounded-md text-sm"
+                />
+                <Select
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, event_type: value }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select event type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {eventTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, target_audience: [value] }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departmentOptions.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
+                  <Button type="submit">Save</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {loading ? (

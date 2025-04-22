@@ -10,6 +10,7 @@ import RoleProtectedRoute from "./routes/RoleProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import EmployeeTable from "./pages/EmployeeTable";
 import LeaveApproval from "./pages/LeaveApproval";
+import EmployeeLeavePage from "./pages/EmployeeLeavePage";
 import AttendancePage from "./pages/Attendance";
 import Addfields from "./pages/Addfields";
 import Events from "./pages/Events";
@@ -57,6 +58,7 @@ function App() {
           <Route element={<RoleProtectedRoute allowedFor="employee" />}>
             <Route element={<DashboardLayout />}>
               <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
+              <Route path="/employee/leave-requests" element={<EmployeeLeavePage />} />
               <Route path="/employee/events" element={<ShowEvents/>} />
             </Route>
           </Route>

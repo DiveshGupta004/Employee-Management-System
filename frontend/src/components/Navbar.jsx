@@ -92,6 +92,11 @@ export function SidebarDemo() {
       href: "/employee/events",
       icon: <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
     },
+    {
+      label: "Leave Requests", // Added Leave link for employees
+      href: "/employee/leave-requests", // Adjust the path to the leave requests page
+      icon: <IconClock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
+    },
   ];
 
   return (

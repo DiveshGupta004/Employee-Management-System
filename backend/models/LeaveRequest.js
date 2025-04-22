@@ -17,7 +17,7 @@ const LeaveRequest = sequelize.define(
       onDelete: 'CASCADE'
     },
     leaveType: {
-      type: DataTypes.ENUM("Sick", "Casual", "Paid", "Unpaid"),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     startDate: {
