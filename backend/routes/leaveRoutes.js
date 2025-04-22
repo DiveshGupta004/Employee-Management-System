@@ -1,6 +1,6 @@
 const express = require("express");
 const leaveController = require("../controllers/leaveController");
-const { authenticateAdmin } = require("../middleware/adminMiddleware");
+const { authenticateAdmin , authenticateEmployee } = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
@@ -8,11 +8,11 @@ const router = express.Router();
 router.post("/", leaveController.requestLeave);
 
 // ✅ Admin-only routes
-router.get("/", authenticateAdmin, leaveController.getAllLeaveRequests);
-router.get("/:id", authenticateAdmin, leaveController.getLeaveRequestById);
-router.put("/:id/approve", authenticateAdmin, leaveController.approveLeave);
-router.put("/:id/reject", authenticateAdmin, leaveController.rejectLeave);
-router.delete("/:id", authenticateAdmin, leaveController.deleteLeaveRequest);
-
+router.get("/",leaveController.getAllLeaveRequests);
+router.get("/allleaves",authenticateEmployee , leaveController.getLeaveRequestsByEmployeeId);
+router.get("/:id", leaveController.getLeaveRequestById);
+router.put("/:id/approve", leaveController.approveLeave);
+router.put("/:id/reject", leaveController.rejectLeave);
+router.delete("/:id", leaveController.deleteLeaveRequest);
 
 module.exports = router;

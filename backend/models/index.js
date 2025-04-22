@@ -10,7 +10,7 @@ const TypeEvent = require('./TypeEvent');
 
 // Sync models
 sequelize
-  .sync({ alter: true }) // change this to false in production
+  .sync({ alter: false }) // change this to false in production
   .then(() => console.log("✅ Models synced successfully."))
   .catch((err) => console.error("❌ Error syncing models:", err));
 

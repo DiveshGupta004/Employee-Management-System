@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../controllers/eventController");
+const { authenticateAdmin, authenticateEmployee } = require('../middleware/adminMiddleware');
 
 // Create a new event
-router.post("/", eventController.createEvent); // POST /events
+router.post("/", authenticateAdmin, eventController.createEvent); // POST /events
 
 // Get all events
 router.get("/", eventController.getAllEvents); // GET /events
@@ -15,9 +16,9 @@ router.get("/upcoming", eventController.getUpcomingEvents); // ✅ NEW: GET /eve
 router.get("/:id", eventController.getEventById); // GET /events/:id
 
 // Update an event by ID
-router.put("/:id", eventController.updateEvent); // PUT /events/:id
+router.put("/:id", authenticateAdmin, eventController.updateEvent); // PUT /events/:id
 
 // Delete an event by ID
-router.delete("/:id", eventController.deleteEvent); // DELETE /events/:id
+router.delete("/:id", authenticateAdmin, eventController.deleteEvent); // DELETE /events/:id
 
 module.exports = router;

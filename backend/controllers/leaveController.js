@@ -117,3 +117,28 @@ exports.deleteLeaveRequest = async (req, res) => {
   }
 };
 
+
+// ✅ Get Leave Requests by Employee ID (Employee)
+exports.getLeaveRequestsByEmployeeId = async (req, res) => {
+  try {
+    const employeeId = req.employee.id; // from token, NOT req.params
+
+    const employee = await Employee.findByPk(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const leaveRequests = await LeaveRequest.findAll({
+      where: { employeeId },
+      include: { model: Employee, attributes: ["name", "email"] },
+      order: [["id", "DESC"]],
+    });
+
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching leave requests", error });
+  }
+};
+
+
+
