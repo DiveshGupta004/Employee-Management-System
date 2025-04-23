@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   Dialog,
@@ -79,15 +80,58 @@ const EventList = () => {
     }
   };
 
+  useEffect(() => {
+    applyFilters();
+  }, [filterType, events]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      applyFilters();
+    }
+  }, [searchQuery]);
+
   const fetchEvents = async () => {
     try {
       const response = await axios.get("http://localhost:5000/events", { withCredentials: true });
       setEvents(response.data);
+      setFilteredEvents(response.data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = () => {
+    let updatedEvents = events;
+    
+    const now = new Date();
+    if (filterType === "upcoming") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+    } else if (filterType === "past") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+    }
+    
+    setFilteredEvents(updatedEvents);
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim() === "") {
+      applyFilters();
+      return;
+    }
+    let updatedEvents = events.filter(event => 
+      event.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    const now = new Date();
+    if (filterType === "upcoming") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+    } else if (filterType === "past") {
+      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+    }
+    
+    setFilteredEvents(updatedEvents);
   };
 
   const fetchEventTypes = async () => {
@@ -270,9 +314,9 @@ const EventList = () => {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-600">Loading events...</p>
+        <p className="text-center text-gray-400">Loading events...</p>
       ) : error ? (
-        <p className="text-center text-red-600">Error: {error}</p>
+        <p className="text-center text-red-500">Error: {error}</p>
       ) : (
         <Table>
           <TableCaption>List of upcoming events</TableCaption>
