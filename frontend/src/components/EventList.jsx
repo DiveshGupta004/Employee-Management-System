@@ -80,21 +80,21 @@ const EventList = () => {
     }
   };
 
-  useEffect(() => {
-    applyFilters();
-  }, [filterType, events]);
+  // useEffect(() => {
+  //   applyFilters();
+  // }, [filterType, events]);
 
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      applyFilters();
-    }
-  }, [searchQuery]);
+  // useEffect(() => {
+  //   if (searchQuery.trim() === "") {
+  //     applyFilters();
+  //   }
+  // }, [searchQuery]);
 
   const fetchEvents = async () => {
     try {
       const response = await axios.get("http://localhost:5000/events", { withCredentials: true });
       setEvents(response.data);
-      setFilteredEvents(response.data);
+      // setFilteredEvents(response.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -102,37 +102,37 @@ const EventList = () => {
     }
   };
 
-  const applyFilters = () => {
-    let updatedEvents = events;
+  // const applyFilters = () => {
+  //   let updatedEvents = events;
     
-    const now = new Date();
-    if (filterType === "upcoming") {
-      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
-    } else if (filterType === "past") {
-      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
-    }
+  //   const now = new Date();
+  //   if (filterType === "upcoming") {
+  //     updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+  //   } else if (filterType === "past") {
+  //     updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+  //   }
     
-    setFilteredEvents(updatedEvents);
-  };
+  //   setFilteredEvents(updatedEvents);
+  // };
 
-  const handleSearch = () => {
-    if (searchQuery.trim() === "") {
-      applyFilters();
-      return;
-    }
-    let updatedEvents = events.filter(event => 
-      event.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  // const handleSearch = () => {
+  //   if (searchQuery.trim() === "") {
+  //     applyFilters();
+  //     return;
+  //   }
+  //   let updatedEvents = events.filter(event => 
+  //     event.title.toLowerCase().includes(searchQuery.toLowerCase())
+  //   );
     
-    const now = new Date();
-    if (filterType === "upcoming") {
-      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
-    } else if (filterType === "past") {
-      updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
-    }
+  //   const now = new Date();
+  //   if (filterType === "upcoming") {
+  //     updatedEvents = updatedEvents.filter(event => new Date(event.event_date) > now);
+  //   } else if (filterType === "past") {
+  //     updatedEvents = updatedEvents.filter(event => new Date(event.event_date) < now);
+  //   }
     
-    setFilteredEvents(updatedEvents);
-  };
+  //   setFilteredEvents(updatedEvents);
+  // };
 
   const fetchEventTypes = async () => {
     try {
