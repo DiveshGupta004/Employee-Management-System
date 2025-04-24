@@ -3,13 +3,16 @@ const Attendance = require("../models/Attendance");
 const LeaveRequest = require("../models/LeaveRequest");
 const Employee = require("../models/Employee");
 const { Op } = require("sequelize");
-
+const dayjs = require("dayjs");
 const OFFICE_LAT = 28.6139;
 const OFFICE_LNG = 77.2090;
 const ALLOWED_RADIUS = 100;
 const CHECKIN_START = 9; // 9 AM
 const CHECKOUT_END = 17; // 5 PM
-
+const isSameOrAfter = require("dayjs/plugin/isSameOrAfter");
+const isSameOrBefore = require("dayjs/plugin/isSameOrBefore");
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3;
   const toRad = deg => deg * Math.PI / 180;
@@ -125,3 +128,105 @@ exports.markDailyStatus = async (req, res) => {
     res.json({ message: "✅ Daily attendance marked for all." });
   };
   
+
+  // Get Attendance Summary for a specific month
+  exports.getMyAttendanceSummary = async (req, res) => {
+    const userId = req.employee.id;
+    const { month } = req.query;
+  
+    const selectedMonth = dayjs(month || dayjs().format("YYYY-MM"));
+    const monthStart = selectedMonth.startOf("month");
+    const monthEnd = selectedMonth.endOf("month");
+  
+    // Generate all weekdays excluding Sundays
+    const workingDays = [];
+    let currentDay = monthStart;
+  
+    while (currentDay.isSameOrBefore(monthEnd, "day")) {
+      if (currentDay.day() !== 0) { // day() === 0 means Sunday
+        workingDays.push(currentDay.format("YYYY-MM-DD"));
+      }
+      currentDay = currentDay.add(1, "day");
+    }
+  
+    try {
+      const records = await Attendance.findAll({
+        where: {
+          employeeId: userId,
+          date: {
+            [Op.between]: [monthStart.format("YYYY-MM-DD"), monthEnd.format("YYYY-MM-DD")],
+          },
+        },
+      });
+  
+      const present = records.filter((r) => r.status === "Present").length;
+      const late = records.filter((r) => r.status === "Late").length;
+      const absent = records.filter((r) => r.status === "Absent").length;
+  
+      const totalWorkingDays = workingDays.length;
+      const attendedDays = present + late;
+  
+      const percent = totalWorkingDays === 0 ? 0 : Math.round((attendedDays / totalWorkingDays) * 100);
+  
+      res.json({ present, late, absent, total: totalWorkingDays, percent });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to load attendance summary" });
+    }
+  };
+
+// Get Attendance Logs for a specific month
+exports.getMyAttendanceLogs = async (req, res) => {
+  const userId = req.employee.id;
+  const { month } = req.query;
+
+  // Calculate start and end of the month
+  const monthStart = dayjs(month || dayjs().format("YYYY-MM"))
+    .startOf("month")
+    .format("YYYY-MM-DD");
+  const monthEnd = dayjs(month || dayjs().format("YYYY-MM"))
+    .endOf("month")
+    .format("YYYY-MM-DD");
+
+  try {
+    const records = await Attendance.findAll({
+      where: {
+        employeeId: userId,
+        date: {
+          [Op.between]: [monthStart, monthEnd],
+        },
+      },
+      order: [["date", "ASC"]],
+    });
+
+    res.json({ records });
+  } catch (err) {
+    console.error("Error fetching attendance logs:", err);
+    res.status(500).json({ message: "Failed to load attendance logs" });
+  }
+};
+
+exports.getFilteredAttendanceLogs = async (req, res) => {
+  const { employeeId, status, month } = req.query;
+  const monthStart = dayjs(month || dayjs()).startOf("month").format("YYYY-MM-DD");
+  const monthEnd = dayjs(month || dayjs()).endOf("month").format("YYYY-MM-DD");
+
+  const where = {
+    date: { [Op.between]: [monthStart, monthEnd] },
+  };
+
+  if (employeeId) where.employeeId = employeeId;
+  if (status) where.status = status;
+
+  try {
+    const records = await Attendance.findAll({
+      where,
+      include: [{ model: Employee, attributes: ["id", "name"] }],
+      order: [["date", "ASC"]],
+    });
+    res.json({ records });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch filtered logs" });
+  }
+};
