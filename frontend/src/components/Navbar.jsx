@@ -133,7 +133,7 @@ export function SidebarDemo() {
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
             
 
-            {open ? <Logo /> : <LogoIcon />}
+            {/* {open ? <Logo /> : <LogoIcon />} */}
 
             <div className="mt-8 flex flex-col gap-2">
               {(isAdmin ? adminLinks : employeeLinks).map((link, idx) => (
