@@ -28,6 +28,11 @@ exports.checkIn = async (req, res) => {
   const userId = req.employee.id;
   const today = new Date().toISOString().split("T")[0];
 
+  // Validate location input
+  if (latitude === undefined || longitude === undefined) {
+    return res.status(400).json({ error: "Latitude and longitude are required." });
+  }
+
   // Check if leave is approved for today
   const leave = await LeaveRequest.findOne({
     where: {
@@ -55,11 +60,12 @@ exports.checkIn = async (req, res) => {
     employeeId: userId,
     date: today,
     checkInTime: now,
-    status
+    status,
   });
 
   res.json({ message: "Check-in successful", record });
 };
+
 
 exports.checkOut = async (req, res) => {
     const userId = req.employee.id;
