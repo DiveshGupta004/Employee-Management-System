@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { checkIn, checkOut , markDailyStatus , getMyAttendance ,getMyAttendanceSummary,getFilteredAttendanceLogs ,getMyAttendanceLogs} = require("../controllers/attendanceController");
+const { checkIn, checkOut , markDailyStatus , getMyAttendance ,getMyAttendanceSummary,getFilteredAttendanceLogs ,getMyAttendanceLogs , getAllAttendance,exportAttendance} = require("../controllers/attendanceController");
 const { authenticateEmployee , authenticateAdmin } = require("../middleware/adminMiddleware");
 
 router.get("/my/summary", authenticateEmployee, getMyAttendanceSummary);
+router.get("/all", authenticateAdmin, getAllAttendance);
+router.get("/export", authenticateAdmin, exportAttendance);
 router.get("/my/logs", authenticateEmployee,getMyAttendanceLogs);
 router.get("/logs", authenticateAdmin,getFilteredAttendanceLogs);
 router.post("/checkin", authenticateEmployee, checkIn);

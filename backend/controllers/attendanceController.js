@@ -96,12 +96,91 @@ exports.getMyAttendance = async (req, res) => {
   });
   res.json({ records });
 };
+exports.exportAttendance = async (req, res) => {
+  const { startDate, endDate, status, search } = req.query;
 
+  try {
+    const whereClause = {};
+
+    if (startDate && endDate) {
+      whereClause.date = { [Op.between]: [startDate, endDate] };
+    }
+    if (status && status !== "All") {
+      whereClause.status = status;
+    }
+
+    const employeeInclude = {
+      model: Employee,
+      as: "employee",
+      attributes: ["id", "name", "email", "phone"],
+    };
+
+    if (search) {
+      employeeInclude.where = {
+        name: { [Op.like]: `%${search}%` },
+      };
+    }
+
+    const records = await Attendance.findAll({
+      where: whereClause,
+      include: [employeeInclude],
+      order: [["date", "DESC"]],
+    });
+
+    res.json(records); // No pagination here, full data
+  } catch (error) {
+    console.error("Error exporting attendance:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 // Admin: Get all employees' attendance
 exports.getAllAttendance = async (req, res) => {
-  const records = await Attendance.findAll({ order: [['date', 'DESC']] });
-  res.json({ records });
+  const { startDate, endDate, status, search, page = 1, limit = 10 } = req.query;
+
+  try {
+    const whereClause = {};
+    if (startDate && endDate) {
+      whereClause.date = { [Op.between]: [startDate, endDate] };
+    }
+    if (status && status !== "All") {
+      whereClause.status = status;
+    }
+
+    const employeeInclude = {
+      model: Employee,
+      as: "employee",
+      attributes: ["id", "name", "email", "phone"],
+    };
+
+    if (search) {
+      employeeInclude.where = {
+        name: { [Op.like]: `%${search}%` },
+      };
+    }
+
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    const { rows: records, count: totalRecords } = await Attendance.findAndCountAll({
+      where: whereClause,
+      include: [employeeInclude],
+      order: [["date", "DESC"]],
+      limit: parseInt(limit),
+      offset: offset,
+    });
+
+    res.json({ records, totalRecords });
+  } catch (error) {
+    console.error("Error fetching paginated attendance records:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
+
+
+
+
+
+
+
 
 
 exports.markDailyStatus = async (req, res) => {
