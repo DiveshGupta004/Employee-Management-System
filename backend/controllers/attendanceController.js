@@ -184,22 +184,18 @@ exports.markDailyStatus = async (req, res) => {
 // Get Attendance Logs for a specific month
 exports.getMyAttendanceLogs = async (req, res) => {
   const userId = req.employee.id;
-  const { month } = req.query;
+  const { startDate, endDate } = req.query;
 
-  // Calculate start and end of the month
-  const monthStart = dayjs(month || dayjs().format("YYYY-MM"))
-    .startOf("month")
-    .format("YYYY-MM-DD");
-  const monthEnd = dayjs(month || dayjs().format("YYYY-MM"))
-    .endOf("month")
-    .format("YYYY-MM-DD");
+  if (!startDate || !endDate) {
+    return res.status(400).json({ message: "Start date and end date are required" });
+  }
 
   try {
     const records = await Attendance.findAll({
       where: {
         employeeId: userId,
         date: {
-          [Op.between]: [monthStart, monthEnd],
+          [Op.between]: [startDate, endDate],
         },
       },
       order: [["date", "ASC"]],
