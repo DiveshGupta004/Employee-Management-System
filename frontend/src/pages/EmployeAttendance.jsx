@@ -12,7 +12,6 @@ const EmployeAttendance = () => {
     late: 0,
     absent: 0,
   });
-  const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(
     `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, "0")}`
@@ -33,23 +32,9 @@ const EmployeAttendance = () => {
     }
   };
 
-  const fetchLogs = async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/attendance/my/logs?month=${selectedMonth}`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch logs");
-      const data = await res.json();
-      setLogs(data.records);
-    } catch (error) {
-      toast.error("Failed to load attendance logs");
-    }
-  };
-
   useEffect(() => {
     setLoading(true);
     fetchSummary();
-    fetchLogs();
   }, [selectedMonth]);
 
   const attendancePercentage = (() => {
@@ -58,10 +43,10 @@ const EmployeAttendance = () => {
     return ((summary.present / totalDays) * 100).toFixed(1);
   })();
 
-  const monthOptions = Array.from({ length: 12 }, (_, i) => {
-    const month = (i + 1).toString().padStart(2, "0");
-    return `${new Date().getFullYear()}-${month}`;
-  });
+  // const monthOptions = Array.from({ length: 12 }, (_, i) => {
+  //   const month = (i + 1).toString().padStart(2, "0");
+  //   return `${new Date().getFullYear()}-${month}`;
+  // });
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 p-4 w-full">
@@ -69,7 +54,7 @@ const EmployeAttendance = () => {
       <div className="flex-1 space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Attendance Calendar</h2>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          {/* <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Month" />
             </SelectTrigger>
@@ -80,35 +65,9 @@ const EmployeAttendance = () => {
                 </SelectItem>
               ))}
             </SelectContent>
-          </Select>
+          </Select> */}
         </div>
         <AttendanceCalendar month={selectedMonth} />
-
-        {/* Recent Logs */}
-        <div>
-          <h3 className="text-lg font-medium mb-2">Recent Logs</h3>
-          {logs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No records found for this month.</p>
-          ) : (
-            <ul className="space-y-2">
-              {logs.slice(0, 5).map((log, idx) => (
-                <li
-                  key={idx}
-                  className="border rounded-lg p-2 flex justify-between text-sm bg-muted/50"
-                >
-                  <span>{format(new Date(log.date), "MMM d, yyyy")}</span>
-                  <span className={
-                    log.status === "Present" ? "text-green-600" :
-                    log.status === "Late" ? "text-yellow-600" :
-                    "text-red-600"
-                  }>
-                    {log.status}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </div>
 
       {/* Right: Summary Cards */}
