@@ -120,8 +120,18 @@ export function SidebarDemo() {
       icon: <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
     },
     {
+      label: "Attendance",
+      href: "/employee/attendance",
+      icon: <IconClock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
+    },
+    {
       label: "Leave Requests", // Added Leave link for employees
       href: "/employee/leave-requests", // Adjust the path to the leave requests page
+      icon: <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
+    },
+    {
+      label: "Attendance Logs",
+      href: "/employee/logs",
       icon: <IconClock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
     },
   ];

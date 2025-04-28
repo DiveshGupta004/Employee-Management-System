@@ -19,7 +19,8 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import { SidebarDemo } from "./components/Navbar";
 import AuthCheck from "./components/AuthCheck";
 import { Toaster } from "@/components/ui/sonner";
-
+import EmployeAttendance from "./pages/EmployeAttendance";
+import LogsPage from "./pages/LogsPage";
 const DashboardLayout = () => (
   <>
     <SidebarDemo />
@@ -61,6 +62,8 @@ function App() {
               <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
               <Route path="/employee/leave-requests" element={<EmployeeLeavePage />} />
               <Route path="/employee/events" element={<ShowEvents/>} />
+              <Route path="/employee/attendance" element={<EmployeAttendance/>} />
+              <Route path="/employee/logs" element={<LogsPage/>} />
             </Route>
           </Route>
         </Route>
