@@ -252,7 +252,6 @@ const AttendanceTable = () => {
 
       {/* Attendance Table */}
       <Table>
-        <TableCaption>Employee attendance records</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Employee</TableHead>
