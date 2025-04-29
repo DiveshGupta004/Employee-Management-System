@@ -15,7 +15,8 @@ import {
   IconCheck,
   IconClock,
   IconUsers,
-  IconLogout
+  IconLogout,
+  IconBriefcase
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -106,6 +107,13 @@ export function SidebarDemo() {
       href: "/events",
       icon: <IconCalendarEvent className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
     },
+    {
+      label: "Project Details",
+      href: "/project-details",
+      icon: <IconBriefcase className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />,
+    }
+    
+    
   ];
 
   const employeeLinks = [

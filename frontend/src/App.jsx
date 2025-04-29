@@ -21,6 +21,7 @@ import AuthCheck from "./components/AuthCheck";
 import { Toaster } from "@/components/ui/sonner";
 import EmployeAttendance from "./pages/EmployeAttendance";
 import LogsPage from "./pages/LogsPage";
+import ProjectDetails from "./pages/ProjectDetails";
 const DashboardLayout = () => (
   <>
     <SidebarDemo />
@@ -51,6 +52,7 @@ function App() {
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/create-events" element={<Events />} />
               <Route path="/events" element={<ShowEvents />} />
+              <Route path="/project-details" element={<ProjectDetails/>}/>
             </Route>
           </Route>
         </Route>
