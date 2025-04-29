@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,8 +13,10 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
+
 const LeaveRequestsEmployee = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
+  const [leaveTypes, setLeaveTypes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -23,6 +27,7 @@ const LeaveRequestsEmployee = () => {
 
   useEffect(() => {
     fetchLeaveRequests();
+    fetchLeaveTypes();
   }, []);
 
   const fetchLeaveRequests = async () => {
@@ -35,6 +40,18 @@ const LeaveRequestsEmployee = () => {
       setLeaveRequests(data);
     } catch (err) {
       console.error("Error fetching leave requests:", err);
+    }
+  };
+
+  const fetchLeaveTypes = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/leave-types", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setLeaveTypes(data || []);
+    } catch (err) {
+      console.error("Error fetching leave types:", err);
     }
   };
 
@@ -56,7 +73,6 @@ const LeaveRequestsEmployee = () => {
         body: JSON.stringify(payload),
       });
 
-      // Small delay to ensure backend processes and relations (Employee, LeaveType) are properly populated
       setTimeout(() => {
         fetchLeaveRequests();
       }, 500);
@@ -144,6 +160,7 @@ const LeaveRequestsEmployee = () => {
         </TableBody>
       </Table>
 
+      {/* Apply Leave Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -202,9 +219,15 @@ const LeaveRequestsEmployee = () => {
                 <SelectValue placeholder="Select Leave Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">Sick Leave</SelectItem>
-                <SelectItem value="2">Casual Leave</SelectItem>
-                <SelectItem value="3">Paid Leave</SelectItem>
+                {leaveTypes.length > 0 ? (
+                  leaveTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id.toString()}>
+                      {type.type}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled>No leave types available</SelectItem>
+                )}
               </SelectContent>
             </Select>
 
