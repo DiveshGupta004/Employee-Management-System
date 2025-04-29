@@ -3,11 +3,23 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { toast } from "sonner";
 const LeaveRequestsEmployee = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [leaveType, setLeaveType] = useState("");
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     fetchLeaveRequests();
@@ -17,7 +29,7 @@ const LeaveRequestsEmployee = () => {
     try {
       const res = await fetch("http://localhost:5000/api/leaves/allleaves", {
         method: "GET",
-        credentials: "include", // ✅ CRUCIAL for cookies to be sent!
+        credentials: "include",
       });
       const data = await res.json();
       setLeaveRequests(data);
@@ -26,10 +38,44 @@ const LeaveRequestsEmployee = () => {
     }
   };
 
+  const handleApply = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        startDate: startDate?.toISOString(),
+        endDate: endDate?.toISOString(),
+        leaveTypeId: leaveType,
+        reason,
+      };
+      await fetch("http://localhost:5000/api/leaves", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Small delay to ensure backend processes and relations (Employee, LeaveType) are properly populated
+      setTimeout(() => {
+        fetchLeaveRequests();
+      }, 500);
+
+      setDialogOpen(false);
+      setStartDate(null);
+      setEndDate(null);
+      setLeaveType("");
+      setReason("");
+      toast("Leave has been applied successfully! ✅");
+    } catch (err) {
+      console.error("Error applying for leave:", err);
+    }
+  };
+
   const filteredRequests = leaveRequests.filter(
     (request) =>
       (statusFilter === "All" || request.status === statusFilter) &&
-      request.Employee.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (request?.Employee?.name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -37,23 +83,21 @@ const LeaveRequestsEmployee = () => {
       <h2 className="text-2xl font-semibold mb-6">My Leave Requests</h2>
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <Input
-          type="text"
-          placeholder="Search by name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="md:w-1/3"
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full md:w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            {['All', 'Pending', 'Approved', 'Rejected'].map((status) => (
-              <SelectItem key={status} value={status}>{status}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-col md:flex-row gap-2 md:items-center">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              {["All", "Pending", "Approved", "Rejected"].map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button onClick={() => setDialogOpen(true)}>Apply</Button>
       </div>
 
       <Table>
@@ -70,10 +114,10 @@ const LeaveRequestsEmployee = () => {
           {filteredRequests.length > 0 ? (
             filteredRequests.map((req) => (
               <TableRow key={req.id}>
-                <TableCell>{req.startDate}</TableCell>
-                <TableCell>{req.endDate}</TableCell>
-                <TableCell>{req.LeaveType.type}</TableCell>
-                <TableCell>{req.reason}</TableCell>
+                <TableCell>{req.startDate ? format(new Date(req.startDate), "PPP") : "-"}</TableCell>
+                <TableCell>{req.endDate ? format(new Date(req.endDate), "PPP") : "-"}</TableCell>
+                <TableCell>{req?.LeaveType?.type || "-"}</TableCell>
+                <TableCell>{req.reason || "-"}</TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -92,13 +136,94 @@ const LeaveRequestsEmployee = () => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-6">
+              <TableCell colSpan={5} className="text-center py-6">
                 No leave requests found.
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Apply for Leave</DialogTitle>
+            <DialogDescription>Fill the form below to submit a leave request.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleApply} className="space-y-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "PPP") : <span>Start Date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "PPP") : <span>End Date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+
+            <Select value={leaveType} onValueChange={setLeaveType}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Leave Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Sick Leave</SelectItem>
+                <SelectItem value="2">Casual Leave</SelectItem>
+                <SelectItem value="3">Paid Leave</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Input
+              placeholder="Reason for leave"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              required
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Submit</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

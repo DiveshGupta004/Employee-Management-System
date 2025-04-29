@@ -5,7 +5,7 @@ const { authenticateAdmin , authenticateEmployee } = require("../middleware/admi
 const router = express.Router();
 
 // ✅ Employee submits a leave request
-router.post("/", leaveController.requestLeave);
+router.post("/",authenticateEmployee ,leaveController.requestLeave);
 
 // ✅ Admin-only routes
 router.get("/",leaveController.getAllLeaveRequests);

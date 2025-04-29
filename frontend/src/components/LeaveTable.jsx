@@ -97,7 +97,6 @@ const LeaveRequestsAdmin = () => {
       </div>
 
       <Table>
-        <TableCaption>List of leave requests</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Employee</TableHead>

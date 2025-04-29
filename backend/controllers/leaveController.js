@@ -4,16 +4,20 @@ const LeaveType = require("../models/LeaveType");
 // ✅ Submit a Leave Request (Employee)
 exports.requestLeave = async (req, res) => {
   try {
-    const { employeeId, leaveTypeId, startDate, endDate, reason } = req.body;
+    // Get logged-in employee's ID from request
+    const userId = req.employee.id;
+
+    const { leaveTypeId, startDate, endDate, reason } = req.body;
 
     // Check if employee exists
-    const employee = await Employee.findByPk(employeeId);
+    const employee = await Employee.findByPk(userId);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    // Create the leave request
     const leave = await LeaveRequest.create({
-      employeeId,
+      employeeId: userId,
       leaveTypeId,
       startDate,
       endDate,
@@ -23,9 +27,11 @@ exports.requestLeave = async (req, res) => {
 
     res.status(201).json({ message: "Leave request submitted", leave });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error submitting leave request", error });
   }
 };
+
 
 // ✅ Get All Leave Requests (Admin)
 exports.getAllLeaveRequests = async (req, res) => {
