@@ -8,15 +8,15 @@ A full-featured **Employee Management System** web app with a modern UI and comp
 
 | Login | Admin Dashboard | Attendance |
 |-------|------------------|------------|
-| ![](./screenshots/Screenshot_2025-05-20_210953.png) | ![](./screenshots/Screenshot_2025-05-20_211014.png) | ![](./screenshots/Screenshot_2025-05-20_211105.png) |
+| ![](screenshots/login.png) | ![](screenshots/dashboard.png) | ![](screenshots/attendance.png) |
 
 | Leave Request | Full Logs | PDF Export |
 |---------------|------------|-------------|
-| ![](./screenshots/Screenshot_2025-05-20_211217.png) | ![](./screenshots/Screenshot_2025-05-20_211238.png) | ![](./screenshots/Screenshot_2025-05-20_211310.png) |
+| ![](screenshots/leave_form.png) | ![](screenshots/logs.png) | ![](screenshots/pdf_export.png) |
 
 | PDF Output | User Dashboard |
 |------------|----------------|
-| ![](./screenshots/Screenshot_2025-05-20_211325.png) | ![](./screenshots/Screenshot_2025-05-20_211451.png) |
+| ![](screenshots/pdf_view.png) | ![](screenshots/employee_dashboard.png) |
 
 ---
 
